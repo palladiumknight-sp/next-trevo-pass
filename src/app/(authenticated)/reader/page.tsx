@@ -1,10 +1,11 @@
 "use client";
 
+import { useEffect, useRef } from "react";
+
 import { Html5QrcodeScanner } from "html5-qrcode";
 import { createTransactionController } from "@/features/transactions/controllers/transaction.controller";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/auth-context";
-import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 
 export default function Reader() {
@@ -79,7 +80,7 @@ export default function Reader() {
 
           await scanner.clear().catch(() => {});
 
-          toast.success("Novos adicionados pontos no seu passe!", { id: loadingToastId });
+          toast.success("Novos pontos adicionados ao seu passe!", { id: loadingToastId });
 
           router.replace("/dashboard")
         } catch (error: unknown) {
