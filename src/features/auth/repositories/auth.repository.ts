@@ -1,9 +1,10 @@
-import { auth } from "@/lib/firebase/auth";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signOut,
 } from "firebase/auth";
+
+import { auth } from "@/lib/firebase/auth";
 
 export const registerUser = async (email: string, password: string) => {
   return createUserWithEmailAndPassword(auth, email, password);

@@ -1,7 +1,9 @@
 import "./globals.css";
-import type { Metadata } from "next";
-import { AuthProvider } from "@/contexts/auth-context";
+
 import { Inter, Lato, Ubuntu } from "next/font/google";
+
+import { AuthProvider } from "@/contexts/auth-context";
+import type { Metadata } from "next";
 import { Toaster } from "sonner";
 
 const inter = Inter({
@@ -101,7 +103,7 @@ export default function RootLayout({
           <Toaster position="bottom-right" />
           {children}
         </AuthProvider>
-        </body>
+      </body>
     </html>
   );
 }

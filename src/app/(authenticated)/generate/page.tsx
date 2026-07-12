@@ -1,12 +1,13 @@
 "use client";
 
-import { useAuth } from "@/contexts/auth-context";
-import { LaminatedButton } from "@/components/ui/laminated";
-import { createQrTransactionController } from "@/features/transactions/controllers/qr-transaction.controller";
 import { useEffect, useState } from "react";
-import { User } from "firebase/auth";
+
+import { LaminatedButton } from "@/components/ui/laminated";
 import { QRCode } from "@/components/kibo-ui/qr-code";
+import { User } from "firebase/auth";
+import { createQrTransactionController } from "@/features/transactions/controllers/qr-transaction.controller";
 import { toast } from "sonner";
+import { useAuth } from "@/contexts/auth-context";
 
 export interface QrCode {
   id: string;
@@ -106,7 +107,6 @@ export default function Generate() {
 
   return (
     <div>
-      <p>pagina de gerar qr code</p>
       {!code || isExpired ? (
         <form>
           <input
@@ -136,10 +136,14 @@ export default function Generate() {
           </LaminatedButton>
         </form>
       ) : (
-        <>
-          <QRCode data={code.payload} />
-          <p>Expira em {remainingSeconds}s</p>
-        </>
+        <div className="flex flex-col items-center justify-center gap-4 flex-1 font-ubuntu">
+          <h2 className="text-xl font-bold text-slate-800">Hora de resgatar seus pontos</h2>
+          <p className="text-base font-medium text-slate-600">Posicione sua camera no QR Code</p>
+          <QRCode data={code.payload} className="rounded-md bg-slate-100 size-48 p-4 shadow-sm" />
+          <p className="text-base text-red-500 font-bold font-sans">
+            Expira em {remainingSeconds}s
+          </p>
+        </div>
       )}
     </div>
   );
