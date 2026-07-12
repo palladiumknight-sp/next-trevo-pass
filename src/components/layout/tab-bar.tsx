@@ -47,7 +47,7 @@ export const TabBar = () => {
             className="w-8 h-8"
             alt={link.alt}
           />
-          <span className="text-xs text-violet-900 font-medium">
+          <span className="text-xs text-violet-900 font-ubuntu font-medium">
             {link.text}
           </span>
         </Link>
