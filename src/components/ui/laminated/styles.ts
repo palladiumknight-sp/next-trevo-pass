@@ -17,7 +17,7 @@ export const laminatedVariants = {
   },
   violet: {
     bg: "bg-gradient-to-b from-violet-400 via-violet-500 to-violet-600",
-    text: "text-white",
+    text: "text-slate-100",
     ring: "ring-violet-400",
     shadow: "shadow-lg shadow-violet-900/40",
     hover: "hover:from-violet-500 hover:to-violet-700",
