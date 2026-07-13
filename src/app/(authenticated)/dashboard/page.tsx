@@ -5,10 +5,26 @@ import { useEffect, useState } from "react";
 
 import Image from "next/image";
 import Link from "next/link";
+import { NumberTicker } from "@/components/ui/number-ticker";
 import { Progress } from "@/components/ui/progress";
+import { TypingAnimation } from "@/components/ui/typing-animation";
 import { UserRead } from "@/@types";
 import { getUserByIdController } from "@/features/users/controllers/user.controller";
 import { useAuth } from "@/contexts/auth-context";
+
+const REWARDS = [
+  { id: 1, name: "20% de Desconto", points: 100, image: "/images/rewards/20-por-cento-off.png" },
+  { id: 2, name: "500g de Acai Grátis", points: 200, image: "/images/rewards/500g-gratis.png" },
+  { id: 3, name: "Copo Personalizado", points: 300, image: "/images/rewards/copo-personalizado.png" },
+  { id: 4, name: "Vale Compras", points: 300, image: "/images/rewards/vale-compras.png" },
+];
+
+const LEVELS = [
+  { level: "Bronze", points: 0 },
+  { level: "Prata", points: 1000 },
+  { level: "Ouro", points: 2000 },
+  { level: "Platina", points: 3000 },
+];
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -28,49 +44,49 @@ export default function Dashboard() {
 
 
   const calculateProgress = (userPoints: number) => {
-    if (!profile) return;
+    const currentIndex = LEVELS.findLastIndex(
+      level => userPoints >= level.points
+    );
 
-    const levels = [
-      { level: "Bronze", points: 0 },
-      { level: "Prata", points: 1000 },
-      { level: "Ouro", points: 2000 },
-      { level: "Platina", points: 3000 },
-    ];
+    const currentLevel = LEVELS[currentIndex];
+    const nextLevel = LEVELS[currentIndex + 1];
 
-    const currentLevel = levels.find((level) => userPoints >= level.points) || levels[0];
-    const nextLevel = levels[levels.indexOf(currentLevel) + 1];
+    if (!nextLevel) {
+      return {
+        progressPercentage: 100,
+        currentLevel,
+        nextLevel: currentLevel,
+      };
+    }
 
-    if (!nextLevel) return { progressPercentage: 100, currentLevel, nextLevel: { level: "Platina", points: 3000 } };
+    const totalPoints = nextLevel.points - currentLevel.points;
+    const earnedPoints = userPoints - currentLevel.points;
+    const pointsToNextLevel = nextLevel.points - userPoints;
 
-    const pointsToNextLevel = nextLevel.points - currentLevel.points;
-    const pointsEarnedInCurrentLevel = userPoints - currentLevel.points;
-
-    const progressPercentage = (pointsEarnedInCurrentLevel / pointsToNextLevel) * 100;
-
-    return { progressPercentage, currentLevel, nextLevel, pointsToNextLevel };
+    return {
+      progressPercentage: (earnedPoints / totalPoints) * 100,
+      currentLevel,
+      nextLevel,
+      totalPoints,
+      earnedPoints,
+      pointsToNextLevel
+    };
   };
 
   const progress = calculateProgress(profile?.points || 0);
 
-  const arrayRewards = [
-    { id: 1, name: "20% de Desconto", points: 100, image: "/images/rewards/20-por-cento-off.png" },
-    { id: 2, name: "500g de Acai Grátis", points: 200, image: "/images/rewards/500g-gratis.png" },
-    { id: 3, name: "Copo Personalizado", points: 300, image: "/images/rewards/copo-personalizado.png" },
-    { id: 4, name: "Vale Compras", points: 300, image: "/images/rewards/vale-compras.png" },
-  ];
-
   return (
     <div className="flex flex-col items-center justify-center gap-4 p-2 md:p-4">
       <section className="bg-linear-to-tr from-blue-900 to-violet-600 w-full rounded-tl-4xl rounded-br-lg p-4">
-        <span className="text-slate-100 text-lg font-ubuntu font-bold">Ola, {profile?.name}! 👋</span>
-        <p className="text-slate-100 text-sm font-ubuntu font-bold"><span className="text-3xl text-yellow-400">{profile?.points === 0 ? '0000' : profile?.points}</span> pontos</p>
+        <TypingAnimation className="text-slate-100 text-lg font-ubuntu font-bold" words={[`Ola, ${profile?.name}! 👋`]} typeSpeed={50} />
+        <p className="text-slate-100 text-sm font-ubuntu font-bold"><NumberTicker className="text-3xl text-yellow-400" value={progress?.earnedPoints || 0} /> pontos</p>
         <div className="flex flex-col gap-2 md:max-w-1/3">
           <div className="flex flex-row justify-between items-center">
             <span className="font-ubuntu text-sm text-slate-100">Progresso</span>
             <span className="font-ubuntu text-sm text-slate-100">{progress?.progressPercentage.toFixed(2)}%</span>
           </div>
-          <Progress value={profile?.points} />
-          <span className="text-xs text-slate-100 text-right font-ubuntu font-medium">{progress?.pointsToNextLevel} pts para {progress?.nextLevel?.level}</span>
+          <Progress value={progress?.progressPercentage} />
+          <span className="text-xs text-slate-100 text-right font-ubuntu font-medium">{progress?.pointsToNextLevel || 0} pts para {progress?.nextLevel?.level}</span>
         </div>
       </section>
       <ul className="flex flex-row justify-around w-full gap-2">
@@ -130,9 +146,9 @@ export default function Dashboard() {
         <section>
           <h3 className="text-violet-950/80 text-sm font-ubuntu font-medium">Recompensas em destaque</h3>
           <ul className="flex flex-row overflow-scroll">
-            {arrayRewards.map((reward) => (
+            {REWARDS.map((reward) => (
               <li key={reward.id} className="p-2">
-                <Image src={reward.image} alt={reward.name} width={100} height={100} className="min-w-48" />
+                <Image src={reward.image} alt={reward.name} width={100} height={100} className="min-w-48" loading="eager" />
               </li>
             ))}
           </ul>
