@@ -1,9 +1,11 @@
 "use client";
 
-import Link from "next/link";
 import { Eye, EyeClosed, IdCard, Lock, Mail, Phone, User } from "lucide-react";
+import { RegisterSchema, registerSchema } from "./schema";
+
 import { Input } from "@/components/ui/input";
 import { LaminatedButton } from "@/components/ui/laminated";
+import Link from "next/link";
 import { UserBase } from "@/@types";
 import { checkDuplicate } from "@/utils/check-duplicate";
 import { createAuthController } from "@/features/auth/controllers/auth.controller";
@@ -11,7 +13,6 @@ import { createUserController } from "@/features/users/controllers/user.controll
 import { handlerError } from "@/utils/handler-error";
 import { normalizeCpf } from "@/utils/normalize-cpf";
 import { normalizePhone } from "@/utils/normalize-phone";
-import { registerSchema, RegisterSchema } from "./schema";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";

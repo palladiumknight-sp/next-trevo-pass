@@ -1,5 +1,5 @@
-import { ProtectedRoute } from "@/components/auth/protected-route";
 import { Container } from "@/components/layout";
+import { ProtectedRoute } from "@/components/auth/protected-route";
 import { TabBar } from "@/components/layout/tab-bar";
 
 export default function AuthenticatedLayout({
@@ -9,7 +9,7 @@ export default function AuthenticatedLayout({
 }) {
   return (
     <ProtectedRoute>
-      <Container>
+      <Container className="min-h-screen flex flex-col">
         {children}
         <TabBar />
       </Container>
