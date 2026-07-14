@@ -1,14 +1,14 @@
+import { Container } from "./container";
 import Image from "next/image";
 import Link from "next/link";
-import { Container } from "./container";
 
 export const Footer = () => {
   const currentYear = new Date().getFullYear(); 
 
   return (
-    <footer className="w-full bg-yellow-400">
+    <footer className="w-full bg-yellow-400 p-4 font-ubuntu">
       <Container className="md:p-8 lg:p-12">
-        <div className="flex flex-col items-center">
+        <div className="flex flex-col items-center gap-1">
           <Link href="#">
             <Image
               src="/images/logo.png"
