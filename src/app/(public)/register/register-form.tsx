@@ -81,7 +81,7 @@ export const RegisterForm = () => {
             <input
               type="email"
               placeholder="Seu e-mail"
-              className="w-full text-slate-700 placeholder:text-slate-500 outline-none focus:outline-none focus-visible:ring-0 px-2 py-1"
+              className="w-full text-slate-700 placeholder:text-slate-500 font-ubuntu outline-none focus:outline-none focus-visible:ring-0 px-2 py-1"
               autoComplete="email"
               required
               {...register("email")}
@@ -102,7 +102,7 @@ export const RegisterForm = () => {
             <input
               type="phone"
               placeholder="Informe seu telefone"
-              className="w-full text-slate-700 placeholder:text-slate-500 outline-none focus:outline-none focus-visible:ring-0 px-2 py-1"
+              className="w-full text-slate-700 placeholder:text-slate-500 font-ubuntu outline-none focus:outline-none focus-visible:ring-0 px-2 py-1"
               autoComplete="telefone"
               required
               {...register("phone")}
@@ -123,7 +123,7 @@ export const RegisterForm = () => {
             <input
               type="cpf"
               placeholder="Informe seu CPF"
-              className="w-full text-slate-700 placeholder:text-slate-500 outline-none focus:outline-none focus-visible:ring-0 px-2 py-1"
+              className="w-full text-slate-700 placeholder:text-slate-500 font-ubuntu outline-none focus:outline-none focus-visible:ring-0 px-2 py-1"
               autoComplete="cpf"
               required
               {...register("cpf")}
@@ -144,7 +144,7 @@ export const RegisterForm = () => {
             <input
               type={isVisible ? "text" : "password"}
               placeholder="Sua senha"
-              className="w-full text-slate-700 placeholder:text-slate-500 outline-none focus:outline-none focus-visible:ring-0 px-2 py-1"
+              className="w-full text-slate-700 placeholder:text-slate-500 font-ubuntu outline-none focus:outline-none focus-visible:ring-0 px-2 py-1"
               autoComplete="new-password"
               required
               {...register("password")}
@@ -176,7 +176,7 @@ export const RegisterForm = () => {
             <input
               type={isVisible ? "text" : "password"}
               placeholder="Confirme sua senha"
-              className="w-full text-slate-700 placeholder:text-slate-500 outline-none focus:outline-none focus-visible:ring-0 px-2 py-1"
+              className="w-full text-slate-700 placeholder:text-slate-500 font-ubuntu outline-none focus:outline-none focus-visible:ring-0 px-2 py-1"
               autoComplete="new-password"
               required
               {...register("confirmPassword")}

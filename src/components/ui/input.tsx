@@ -23,7 +23,7 @@ export function Input({
         {Icon && <Icon size={18} className="text-slate-500" />}
         <input
           {...props}
-          className="w-full text-slate-700 placeholder:text-slate-500 outline-none focus:outline-none focus-visible:ring-0 px-2 py-1"
+          className="w-full text-slate-700 placeholder:text-slate-500 font-ubuntu outline-none focus:outline-none focus-visible:ring-0 px-2 py-1"
         />
       </div>
       {error && (

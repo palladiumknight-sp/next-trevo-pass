@@ -1,9 +1,10 @@
 "use client";
 
-import Link from "next/link";
 import { Eye, EyeClosed, Lock, Mail } from "lucide-react";
-import { LaminatedButton } from "@/components/ui/laminated";
 import { LoginSchema, loginSchema } from "./schema";
+
+import { LaminatedButton } from "@/components/ui/laminated";
+import Link from "next/link";
 import { handlerError } from "@/utils/handler-error";
 import { loginUser } from "@/features/auth/repositories/auth.repository";
 import { toast } from "sonner";
@@ -50,7 +51,7 @@ export const LoginForm = () => {
             <input
               type="email"
               placeholder="Seu e-mail"
-              className="w-full text-slate-700 placeholder:text-slate-500 outline-none focus:outline-none focus-visible:ring-0 px-2 py-1"
+              className="w-full text-slate-700 placeholder:text-slate-500 font-ubuntu outline-none focus:outline-none focus-visible:ring-0 px-2 py-1"
               autoComplete="email"
               required
               {...register("email")}
@@ -71,7 +72,7 @@ export const LoginForm = () => {
             <input
               type={isVisible ? "text" : "password"}
               placeholder="Sua senha"
-              className="w-full text-slate-700 placeholder:text-slate-500 outline-none focus:outline-none focus-visible:ring-0 px-2 py-1"
+              className="w-full text-slate-700 placeholder:text-slate-500 font-ubuntu outline-none focus:outline-none focus-visible:ring-0 px-2 py-1"
               autoComplete="current-password"
               required
               {...register("password")}
