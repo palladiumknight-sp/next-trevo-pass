@@ -1,5 +1,13 @@
 "use client";
 
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useEffect, useState } from "react";
 
 import { LaminatedButton } from "@/components/ui/laminated";
@@ -27,7 +35,7 @@ export default function Generate() {
   const { user } = useAuth();
 
   const [code, setCode] = useState<QrCode | null>(null);
-  const [now, setNow] = useState(Date.now());
+  const [currentTime, setCurrentTime] = useState(Date.now());
   const [transaction, setTransaction] = useState<TransactionForm>({
     event: "",
     referenceId: "",
@@ -35,6 +43,7 @@ export default function Generate() {
     user: user,
   });
 
+  // Function that captures data for creating a purchase, redemption or campaign participation event
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
 
@@ -42,8 +51,11 @@ export default function Generate() {
       ...prev,
       [id]: id === "amount" ? Number(value) : value,
     }));
+
+    console.log("Transaction data: ", transaction);
   };
 
+  // Function that generates the QR Code so that the customer/consumer can redeem the purchase points with their device
   const generateCode = async () => {
     try {
       const result = await createQrTransactionController(transaction);
@@ -74,28 +86,24 @@ export default function Generate() {
     }
   };
 
-  const isExpired = code ? now > code.expiresAt.getTime() : true;
+  // Variavel with the function of checking whether a QR Code is expired or not
+  const isExpired = code ? currentTime > code.expiresAt.getTime() : true;
+
+  // Variavel with the function of counting down the seconds for the QR Code to expire
   const remainingSeconds = code
-    ? Math.max(0, Math.floor((code.expiresAt.getTime() - now) / 1000))
+    ? Math.max(0, Math.floor((code.expiresAt.getTime() - currentTime) / 1000))
     : 0;
 
-  useEffect(() => {
-    if (user) {
-      setTransaction((prev) => ({
-        ...prev,
-        user,
-      }));
-    }
-  }, [user]);
-
+  // Effect that keeps the QR Code countdown logic
   useEffect(() => {
     const interval = setInterval(() => {
-      setNow(Date.now());
+      setCurrentTime(Date.now());
     }, 1000);
 
     return () => clearInterval(interval);
   }, []);
 
+  // Effect that generates a new QR Code when time is up
   // useEffect(() => {
   //   if (!code) return;
 
@@ -105,21 +113,61 @@ export default function Generate() {
 
   // }, [isExpired])
 
+  const EVENTS = [
+    { id: 1, text: "Compra", value: "purchase" },
+    { id: 2, text: "Resgate", value: "reward" },
+    { id: 3, text: "Campanha", value: "campaign" },
+  ];
+
   return (
-    <div>
+    <div className="flex flex-col flex-1">
       {!code || isExpired ? (
-        <form>
-          <input
-            id="event"
-            name="event"
-            placeholder="Digite aqui o evento"
+        <form
+          className="flex flex-col justify-center gap-4 p-4 flex-1"
+          onSubmit={(e) => e.preventDefault()}
+        >
+          <div className="">
+            <h2 className="text-center text-xl font-bold text-violet-900 font-ubuntu">
+              Gerar QR Code
+            </h2>
+            <p className="text-center text-sm font-medium text-violet-700 font-ubuntu">
+              Registre um evento e gere o QR Code para o cliente
+            </p>
+          </div>
+          <Select
             value={transaction.event}
-            onChange={handleChange}
-          />
+            onValueChange={(value) =>
+              setTransaction((prev) => ({ ...prev, event: value }))
+            }
+          >
+            <SelectTrigger
+              className="font-ubuntu px-4 py-5 border-2 border-yellow-500 w-full"
+              data-size="default"
+            >
+              <SelectValue
+                className="font-ubuntu"
+                placeholder="Selecione o evento"
+              />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                {EVENTS.map((event) => (
+                  <SelectItem
+                    key={event.id}
+                    value={event.value}
+                    className="px-4 py-3 font-ubuntu"
+                  >
+                    {event.text}
+                  </SelectItem>
+                ))}
+              </SelectGroup>
+            </SelectContent>
+          </Select>
           <input
             id="referenceId"
             name="referenceId"
             placeholder="Digite aqui o codigo do produto"
+            className="font-ubuntu"
             value={transaction.referenceId}
             onChange={handleChange}
           />
@@ -128,6 +176,7 @@ export default function Generate() {
             type="number"
             name="amount"
             placeholder="Digite aqui o valor da compra"
+            className="font-ubuntu"
             value={transaction.amount}
             onChange={handleChange}
           />
@@ -137,9 +186,16 @@ export default function Generate() {
         </form>
       ) : (
         <div className="flex flex-col items-center justify-center gap-4 flex-1 font-ubuntu">
-          <h2 className="text-xl font-bold text-slate-800">Hora de resgatar seus pontos</h2>
-          <p className="text-base font-medium text-slate-600">Posicione sua camera no QR Code</p>
-          <QRCode data={code.payload} className="rounded-md bg-slate-100 size-48 p-4 shadow-sm" />
+          <h2 className="text-xl font-bold text-slate-900">
+            Hora de resgatar seus pontos
+          </h2>
+          <p className="text-base font-medium text-slate-700">
+            Posicione sua camera no QR Code
+          </p>
+          <QRCode
+            data={code.payload}
+            className="rounded-md bg-slate-100 size-48 p-4 shadow-sm"
+          />
           <p className="text-base text-red-500 font-bold font-sans">
             Expira em {remainingSeconds}s
           </p>
