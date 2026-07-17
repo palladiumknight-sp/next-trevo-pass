@@ -3,13 +3,13 @@ import { defineConfig, globalIgnores } from "eslint/config";
 import eslintConfigPrettier from "eslint-config-prettier";
 import nextTs from "eslint-config-next/typescript";
 import nextVitals from "eslint-config-next/core-web-vitals";
-import prettier from "eslint-plugin-prettier";
+import prettierRecommended from "eslint-plugin-prettier/recommended";
 
 const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
   eslintConfigPrettier,
-  prettier,
+  prettierRecommended,
   // Override default ignores of eslint-config-next.
   globalIgnores([
     // Default ignores of eslint-config-next:
