@@ -7,7 +7,6 @@ import { Input } from "@/components/ui/input";
 import { LaminatedButton } from "@/components/ui/laminated";
 import Link from "next/link";
 import { UserBase } from "@/@types";
-import { checkDuplicate } from "@/utils/check-duplicate";
 import { createAuthController } from "@/features/auth/controllers/auth.controller";
 import { createUserController } from "@/features/users/controllers/user.controller";
 import { handlerError } from "@/utils/handler-error";
@@ -36,19 +35,17 @@ export const RegisterForm = () => {
 
   const onSubmit = async (data: RegisterSchema) => {
     try {
-      const { email, password, phone, cpf } = data;
-
-      const normalizedPhone = normalizePhone(phone);
-      const normalizedCpf = normalizeCpf(cpf);
-
-      await checkDuplicate(normalizedPhone, normalizedCpf);
+      const { email, password, phone, cpf, name } = data;
 
       const { uid } = await createAuthController(email, password);
 
       const newUser: UserBase = {
         id: uid,
-        ...data
-      }
+        name,
+        email,
+        phone: normalizePhone(phone),
+        cpf: normalizeCpf(cpf),
+      };
 
       await createUserController(newUser);
 
@@ -62,7 +59,10 @@ export const RegisterForm = () => {
 
   return (
     <>
-      <form className="flex flex-col gap-2 w-full max-w-75">
+      <form
+        className="flex flex-col gap-2 w-full max-w-75"
+        onSubmit={handleSubmit(onSubmit)}
+      >
         <Input
           label="Seu nome e sobrenome"
           icon={User}
@@ -205,11 +205,7 @@ export const RegisterForm = () => {
         >
           Esqueceu sua senha?
         </Link>
-        <LaminatedButton
-          type="button"
-          onClick={handleSubmit(onSubmit)}
-          disabled={isSubmitting}
-        >
+        <LaminatedButton type="submit" disabled={isSubmitting}>
           {isSubmitting ? "Processando..." : "Criar conta"}
         </LaminatedButton>
       </form>
