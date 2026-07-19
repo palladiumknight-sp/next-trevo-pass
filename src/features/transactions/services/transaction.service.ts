@@ -1,20 +1,24 @@
+import { Timestamp, collection, doc, runTransaction } from "firebase/firestore";
+
 import { AppError } from "@/utils/app-error";
-import { collection, doc, runTransaction, Timestamp } from "firebase/firestore";
+import { CreateTransactionInput } from "@/@types";
 import { db } from "@/lib/firebase/firestore";
 
-export async function createTransactionService(data: any) {
+export async function createTransactionService(data: CreateTransactionInput) {
   const { transactionId, customerId } = data;
 
   const transactionResult = await runTransaction(db, async (tx) => {
     const qrRef = doc(db, "qr_transactions", transactionId);
     const qrSnap = await tx.get(qrRef);
 
-    if (!qrSnap.exists()) throw new AppError("QR_CODE_NOT_FOUND", "QR Code nao encontrado", 404);
+    if (!qrSnap.exists())
+      throw new AppError("QR_CODE_NOT_FOUND", "QR Code nao encontrado", 404);
     const qrTransaction = qrSnap.data();
 
     const now = Timestamp.now();
 
-    if (qrTransaction.usedAt) throw new AppError("USED_QR_CODE", "Esse QR Code ja foi utilizado", 403);
+    if (qrTransaction.usedAt)
+      throw new AppError("USED_QR_CODE", "Esse QR Code ja foi utilizado", 403);
     if (now.toMillis() > qrTransaction.expiresAt.toMillis())
       throw new AppError("EXPIRED_QR_CODE", "Esse QR Code expirou", 400);
 

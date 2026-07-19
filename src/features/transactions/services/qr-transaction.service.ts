@@ -1,4 +1,8 @@
-import { TransactionCreate, TransactionUpdate } from "@/@types";
+import {
+  CreateQrTransactionInput,
+  TransactionCreate,
+  TransactionUpdate,
+} from "@/@types";
 // import { calculatePoints } from "@/utils/points-engine";
 import {
   createQrTransactionRepository,
@@ -9,18 +13,14 @@ import {
 } from "../repositories/qr-transaction.repository";
 
 import { AppError } from "@/utils/app-error";
-import { User } from "firebase/auth";
 import { checkUserPermission } from "@/utils/permissions";
 import { defineEvent } from "@/utils/define-event";
 import { generateQrTimestamps } from "@/utils/timestamps";
 import { getUserByIdService } from "@/features/users/services/user.service";
 
-export async function createQrTransactionService(data: {
-  user: User;
-  event: "purchase" | "reward" | "campaign";
-  referenceId: string;
-  amount: number;
-}) {
+export async function createQrTransactionService(
+  data: CreateQrTransactionInput,
+) {
   const { user, event, referenceId, amount } = data;
 
   if (!user || !user.uid) {
