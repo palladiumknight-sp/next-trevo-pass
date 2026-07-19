@@ -1,40 +1,11 @@
 import Image from "next/image";
+import { LINKS_MENU } from "@/data";
 import Link from "next/link";
 
 export const TabBar = () => {
-  const arrayLinks = [
-    {
-      id: 1,
-      href: "/dashboard",
-      image: "/icons/home.png",
-      alt: "home",
-      text: "Inicio",
-    },
-    {
-      id: 2,
-      href: "/points",
-      image: "/icons/points.png",
-      alt: "points",
-      text: "Pontos",
-    },
-    {
-      id: 3,
-      href: "/rewards",
-      image: "/icons/rewards.png",
-      alt: "rewards",
-      text: "Resgates",
-    },
-    {
-      id: 4,
-      href: "/profile",
-      image: "/icons/profile.png",
-      alt: "profile",
-      text: "Perfil",
-    },
-  ];
   return (
-    <div className="flex flex-row justify-around gap-3 p-4 md:hidden">
-      {arrayLinks.map((link) => (
+    <div className="flex flex-row justify-around gap-3 p-4 md:hidden z-10 fixed bg-slate-100 w-full bottom-0">
+      {LINKS_MENU.map((link) => (
         <Link
           key={link.id}
           href={link.href}
