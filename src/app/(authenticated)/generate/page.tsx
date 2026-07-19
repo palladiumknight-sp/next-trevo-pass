@@ -1,6 +1,12 @@
 "use client";
 
 import {
+  CreateQrTransactionInput,
+  EventType,
+  QrCode,
+  TransactionForm,
+} from "@/@types";
+import {
   Select,
   SelectContent,
   SelectGroup,
@@ -12,35 +18,19 @@ import { useEffect, useState } from "react";
 
 import { LaminatedButton } from "@/components/ui/laminated";
 import { QRCode } from "@/components/kibo-ui/qr-code";
-import { User } from "firebase/auth";
 import { createQrTransactionController } from "@/features/transactions/controllers/qr-transaction.controller";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/auth-context";
-
-export interface QrCode {
-  id: string;
-  expiresAt: Date;
-  version: number;
-  payload: string;
-}
-
-export interface TransactionForm {
-  event: string;
-  referenceId: string;
-  amount: number;
-  user: User | null;
-}
 
 export default function Generate() {
   const { user } = useAuth();
 
   const [code, setCode] = useState<QrCode | null>(null);
-  const [currentTime, setCurrentTime] = useState(Date.now());
+  const [currentTime, setCurrentTime] = useState(() => Date.now());
   const [transaction, setTransaction] = useState<TransactionForm>({
-    event: "",
+    event: "purchase",
     referenceId: "",
     amount: 0,
-    user: user,
   });
 
   // Function that captures data for creating a purchase, redemption or campaign participation event
@@ -51,14 +41,24 @@ export default function Generate() {
       ...prev,
       [id]: id === "amount" ? Number(value) : value,
     }));
-
-    console.log("Transaction data: ", transaction);
   };
 
   // Function that generates the QR Code so that the customer/consumer can redeem the purchase points with their device
   const generateCode = async () => {
     try {
-      const result = await createQrTransactionController(transaction);
+      if (!user) {
+        toast.error("Usuário não autenticado");
+        return;
+      }
+
+      const payloadQr: CreateQrTransactionInput = {
+        event: transaction.event,
+        referenceId: transaction.referenceId,
+        amount: transaction.amount,
+        user,
+      };
+
+      const result = await createQrTransactionController(payloadQr);
 
       if (!result) {
         toast.error("Nao foi possivel gerar o QR Code", {
@@ -69,18 +69,22 @@ export default function Generate() {
 
       const { id, expiresAt, version } = result;
 
+      const expirationDate = expiresAt.toDate();
+
       const payload = JSON.stringify({
         id,
         version,
-        expiresAt: expiresAt.toDate(),
+        expiresAt: expirationDate,
       });
 
       setCode({
         id,
-        expiresAt: expiresAt.toDate(),
         version,
+        expiresAt: expirationDate,
         payload,
       });
+
+      console.log(code, payload);
     } catch (error: unknown) {
       console.error("Erro ao gerar QR Code: ", error);
     }
@@ -137,7 +141,7 @@ export default function Generate() {
           <Select
             value={transaction.event}
             onValueChange={(value) =>
-              setTransaction((prev) => ({ ...prev, event: value }))
+              setTransaction((prev) => ({ ...prev, event: value as EventType }))
             }
           >
             <SelectTrigger

@@ -29,63 +29,42 @@ export default function Reader() {
 
         lastScannedRef.current = decodedText;
 
-         if (!user) {
-           toast.error("Usuario nao autenticado");
-           return;
-         }
+        if (!user) {
+          toast.error("Usuario nao autenticado");
+          return;
+        }
 
         loadingRef.current = true;
 
         const loadingToastId = "qr-loading";
-        toast.loading("Processando QR Code", { id: loadingToastId})
+        toast.loading("Processando QR Code", { id: loadingToastId });
 
         try {
           const data = JSON.parse(decodedText);
 
-          // if (typeof data !== "object" || data === null) {
-          //   console.log("PASSEI AQUI");
-          //   throw new Error("Formato inválido");
-          // }
-
-          // if (!data?.id || !data?.expiresAt || !data?.version) {
-          //   console.log("PASSEI AQUI");
-          //   throw new Error("QR Code inválido");
-          // }
-
-          // const expiresAt = new Date(data.expiresAt);
-
-          // if (isNaN(expiresAt.getTime())) {
-          //   console.log("PASSEI AQUI");
-          //   throw new Error("Data inválida");
-          // }
-
-          // if (expiresAt < new Date()) {
-          //   console.log("PASSEI AQUI");
-          //   toast.error("QR Code expirado", { id: loadingToastId });
-          //   await scanner.clear().catch(() => {});
-          //   return;
-          // }
+          if (typeof data !== "object" || data === null || !("id" in data)) {
+            throw new Error("QR Code inválido");
+          }
 
           await createTransactionController({
             transactionId: data.id,
             customerId: user.uid,
           });
-          // await fetch("/api/transaction", {
-          //   method: "POST",
-          //   body: JSON.stringify({
-          //     transactionId: data.id,
-          //     customerId: user!.uid
-          //   })
-          // })
 
           await scanner.clear().catch(() => {});
 
-          toast.success("Novos pontos adicionados ao seu passe!", { id: loadingToastId });
+          toast.success("Novos pontos adicionados ao seu passe!", {
+            id: loadingToastId,
+          });
 
-          router.replace("/dashboard")
+          router.replace("/dashboard");
         } catch (error: unknown) {
           console.error(error);
-          toast.error("Voce esta tentando ler o mesmo QR Code duas vezes?", {
+
+          const message =
+            error instanceof Error ? error.message : "Erro inesperado.";
+
+          toast.error(message, {
             id: loadingToastId,
           });
         } finally {
@@ -100,7 +79,7 @@ export default function Reader() {
     return () => {
       scanner.clear().catch(() => {});
     };
-  }, []);
+  }, [router, user]);
 
   return <div id="reader"></div>;
 }
