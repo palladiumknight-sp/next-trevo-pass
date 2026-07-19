@@ -127,7 +127,7 @@ export default function Generate() {
     <div className="flex flex-col flex-1">
       {!code || isExpired ? (
         <form
-          className="flex flex-col justify-center gap-4 p-4 flex-1"
+          className="flex flex-col justify-center gap-4 p-4 flex-1 max-w-150 mx-auto"
           onSubmit={(e) => e.preventDefault()}
         >
           <div className="">

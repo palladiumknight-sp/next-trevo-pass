@@ -33,7 +33,7 @@ export const TabBar = () => {
     },
   ];
   return (
-    <div className="flex flex-row justify-around gap-3 p-4">
+    <div className="flex flex-row justify-around gap-3 p-4 md:hidden">
       {arrayLinks.map((link) => (
         <Link
           key={link.id}

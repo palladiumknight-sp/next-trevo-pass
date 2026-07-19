@@ -15,7 +15,12 @@ export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     }
   }, [user, loading, router]);
 
-  if (loading || !user) return <div className="w-screen h-screen flex items-center justify-center"><Spinner /></div>;
+  if (loading || !user)
+    return (
+      <div className="w-screen h-screen flex items-center justify-center">
+        <Spinner />
+      </div>
+    );
 
   return children;
 };

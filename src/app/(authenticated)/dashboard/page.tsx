@@ -77,7 +77,7 @@ export default function Dashboard() {
   const progress = calculateProgress(profile?.points || 0);
 
   return (
-    <div className="flex flex-col items-center justify-center gap-4 p-4 md:p-4">
+    <div className="flex flex-col items-center justify-center flex-1 min-w-0 gap-4 p-4">
       {isLoading ? (
         <Skeleton className="bg-linear-to-tr from-blue-900 to-violet-600 w-full h-40 rounded-tl-4xl rounded-br-lg p-4 animate-pulse" />
       ) : (

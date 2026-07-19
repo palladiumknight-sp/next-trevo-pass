@@ -5,7 +5,11 @@ import { useAuth } from "@/contexts/auth-context";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
-export default function PublicRoute({ children }: { children: React.ReactNode }) {
+export default function PublicRoute({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const { user, loading } = useAuth();
   const router = useRouter();
 
@@ -15,7 +19,12 @@ export default function PublicRoute({ children }: { children: React.ReactNode })
     }
   }, [user, loading, router]);
 
-  if (loading || user) return <div className="w-screen h-screen flex items-center justify-center"><Spinner /></div>;
+  if (loading || user)
+    return (
+      <div className="w-screen h-screen flex items-center justify-center">
+        <Spinner />
+      </div>
+    );
 
   return children;
 }
