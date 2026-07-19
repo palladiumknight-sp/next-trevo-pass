@@ -1,6 +1,9 @@
+import { CreateTransactionInput } from "@/@types";
 import { createTransactionService } from "../services/transaction.service";
 
-export async function createTransactionController(data: any) {
+export async function createTransactionController(
+  data: CreateTransactionInput,
+) {
   try {
     const transaction = await createTransactionService(data);
 
