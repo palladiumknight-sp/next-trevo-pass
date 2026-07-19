@@ -1,7 +1,6 @@
-import { Container } from "@/components/layout";
+import { Container, SideBar, TabBar } from "@/components/layout";
+
 import { ProtectedRoute } from "@/components/auth/protected-route";
-import { SideBar } from "@/components/layout/side-bar";
-import { TabBar } from "@/components/layout/tab-bar";
 
 export default function AuthenticatedLayout({
   children,

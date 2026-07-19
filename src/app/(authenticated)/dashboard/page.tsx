@@ -1,24 +1,23 @@
 "use client";
 
 import { ChevronRight, Clover, Gift } from "lucide-react";
+import { LEVELS, LINKS, PARTNERS, REWARDS } from "@/data";
 import {
   Marquee,
   MarqueeContent,
   MarqueeFade,
   MarqueeItem,
 } from "@/components/kibo-ui/marquee";
+import {
+  NumberTicker,
+  Progress,
+  Skeleton,
+  TypingAnimation,
+} from "@/components/ui";
 import { useEffect, useState } from "react";
 
 import Image from "next/image";
-import { LEVELS } from "@/data/levels";
-import { LINKS } from "@/data/links";
 import Link from "next/link";
-import { NumberTicker } from "@/components/ui/number-ticker";
-import { PARTNERS } from "@/data/partners";
-import { Progress } from "@/components/ui/progress";
-import { REWARDS } from "@/data/rewards";
-import { Skeleton } from "@/components/ui/skeleton";
-import { TypingAnimation } from "@/components/ui/typing-animation";
 import { UserRead } from "@/@types";
 import { getUserByIdController } from "@/features/users/controllers/user.controller";
 import { useAuth } from "@/contexts/auth-context";
@@ -77,25 +76,27 @@ export default function Dashboard() {
   const progress = calculateProgress(profile?.points || 0);
 
   return (
-    <div className="flex flex-col items-center justify-center flex-1 min-w-0 gap-4 p-4">
+    <div className="flex flex-col items-center justify-start flex-1 min-w-0 gap-4 p-4">
       {isLoading ? (
         <Skeleton className="bg-linear-to-tr from-blue-900 to-violet-600 w-full h-40 rounded-tl-4xl rounded-br-lg p-4 animate-pulse" />
       ) : (
         <section className="bg-linear-to-tr from-blue-900 to-violet-600 w-full h-40 rounded-tl-4xl rounded-br-lg p-4">
-          <TypingAnimation
-            key={profile?.name}
-            className="text-slate-100 text-lg font-ubuntu font-bold"
-            words={[`Ola, ${profile?.name}! 👋`]}
-            typeSpeed={50}
-          />
-          <p className="text-slate-100 text-sm font-ubuntu font-bold">
-            <NumberTicker
-              className="text-3xl text-yellow-400"
-              value={progress?.earnedPoints || 0}
-            />{" "}
-            pontos
-          </p>
-          <div className="flex flex-col gap-2 md:max-w-1/3">
+          <div className="flex flex-col lg:max-w-2/3">
+            <TypingAnimation
+              key={profile?.name}
+              className="text-slate-100 text-lg font-ubuntu font-bold"
+              words={[`Ola, ${profile?.name}! 👋`]}
+              typeSpeed={50}
+            />
+            <p className="text-slate-100 text-sm font-ubuntu font-bold">
+              <NumberTicker
+                className="text-3xl text-yellow-400"
+                value={progress?.earnedPoints || 0}
+              />{" "}
+              pontos
+            </p>
+          </div>
+          <div className="flex flex-col gap-2 lg:max-w-2/3">
             <div className="flex flex-row justify-between items-center">
               <span className="font-ubuntu text-sm text-slate-100">
                 Progresso
