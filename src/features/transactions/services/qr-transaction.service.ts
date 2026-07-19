@@ -49,7 +49,6 @@ export async function createQrTransactionService(
 
   const { source, type } = defineEvent(event);
   const { createdAt, updatedAt, expiresAt } = generateQrTimestamps(60);
-  // const points = calculatePoints(amount, generatorUser!.level);
 
   const qrTransaction: TransactionCreate = {
     referenceId,

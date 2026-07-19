@@ -83,8 +83,6 @@ export default function Generate() {
         expiresAt: expirationDate,
         payload,
       });
-
-      console.log(code, payload);
     } catch (error: unknown) {
       console.error("Erro ao gerar QR Code: ", error);
     }
