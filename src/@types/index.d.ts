@@ -77,3 +77,47 @@ export type TransactionUpdate = Partial<TransactionRead>;
 export interface TransactionUser extends TransactionRead {
   qrTransactionId: string;
 }
+
+export interface CreateTransactionInput {
+  transactionId: string;
+  customerId: string;
+}
+
+export interface QrCode {
+  id: string;
+  expiresAt: Date;
+  version: number;
+  payload: string;
+}
+
+export type EventType = "purchase" | "reward" | "campaign";
+
+export interface TransactionForm {
+  event: EventType;
+  referenceId: string;
+  amount: number;
+}
+
+export interface ContainerProps {
+  children: React.ReactNode;
+  className?: string;
+}
+
+export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
+  icon?: LucideIcon;
+  label: string;
+  error?: FieldError;
+  name?: string;
+}
+
+export interface CreateQrTransactionInput {
+  user: User | null;
+  event: EventType;
+  referenceId: string;
+  amount: number;
+}
+
+export interface AuthContextProps {
+  user: User | null;
+  loading: boolean;
+}
