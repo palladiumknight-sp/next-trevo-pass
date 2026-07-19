@@ -4,7 +4,7 @@ import Link from "next/link";
 
 export const TabBar = () => {
   return (
-    <div className="flex flex-row justify-around gap-3 p-4 md:hidden z-10 fixed bg-slate-100 w-full bottom-0">
+    <div className="flex flex-row justify-around gap-3 p-4 md:hidden z-10 fixed bg-slate-100 w-full h-20 bottom-0 right-0 left-0">
       {LINKS_MENU.map((link) => (
         <Link
           key={link.id}

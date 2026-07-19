@@ -4,7 +4,7 @@ import Link from "next/link";
 
 export const SideBar = () => {
   return (
-    <aside className="hidden md:flex w-64 shrink-0 flex-col bg-violet-200/60 px-4 py-4">
+    <aside className="hidden fixed md:flex w-64 h-screen shrink-0 flex-col bg-violet-200/60 px-4 py-4">
       <ul className="flex flex-col gap-2">
         {LINKS_MENU.map((link) => (
           <Link
