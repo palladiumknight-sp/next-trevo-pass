@@ -1,23 +1,16 @@
-import { FieldError } from "react-hook-form";
-import { InputHTMLAttributes } from "react";
-import { LucideIcon } from "lucide-react";
-
-interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
-  icon?: LucideIcon;
-  label: string;
-  error?: FieldError;
-}
+import { InputProps } from "@/@types";
 
 export function Input({
   icon: Icon,
   label,
   error,
+  name,
   ...props
 }: InputProps) {
   return (
     <>
       <div className="flex flex-row items-center gap-1 px-2 py-1 border border-slate-200 rounded-md focus-within:ring-2 focus-within:ring-violet-900">
-        <label htmlFor={props.name} className="sr-only">
+        <label htmlFor={name} className="sr-only">
           {label}
         </label>
         {Icon && <Icon size={18} className="text-slate-500" />}
