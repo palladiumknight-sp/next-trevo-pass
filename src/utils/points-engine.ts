@@ -3,7 +3,7 @@ export const calculatePoints = (
   level: "bronze" | "silver" | "gold" | "vip",
   campaignMultiplier = 1,
 ) => {
-  const basePoints = Math.floor(amount);
+  const basePoints = Math.trunc(amount);
 
   const levelMultipliers = {
     bronze: 1,
@@ -14,5 +14,5 @@ export const calculatePoints = (
 
   const multiplier = levelMultipliers[level] ?? 1;
 
-  return Math.floor(basePoints * multiplier * campaignMultiplier);
+  return Math.trunc(basePoints * multiplier * campaignMultiplier);
 };
