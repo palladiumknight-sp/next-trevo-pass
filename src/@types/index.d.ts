@@ -1,4 +1,5 @@
 import { FieldValue, Timestamp } from "firebase/firestore";
+import { InputHTMLAttributes } from "react";
 
 // USER (Base, Create, Read, Update)
 
@@ -107,7 +108,6 @@ export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   icon?: LucideIcon;
   label: string;
   error?: FieldError;
-  name?: string;
 }
 
 export interface CreateQrTransactionInput {
