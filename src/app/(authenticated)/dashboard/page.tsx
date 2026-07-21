@@ -14,18 +14,29 @@ import {
   Skeleton,
   TypingAnimation,
 } from "@/components/ui";
-import { useEffect, useState } from "react";
+import { TransactionRead, UserRead } from "@/@types";
+import { useEffect, useRef, useState } from "react";
 
+import { DocumentSnapshot } from "firebase/firestore";
 import Image from "next/image";
+import { LaminatedButton } from "@/components/ui/laminated";
 import Link from "next/link";
-import { UserRead } from "@/@types";
+import { formatDistanceToNow } from "date-fns";
+import { getTransactionsController } from "@/features/transactions/controllers/transaction.controller";
 import { getUserByIdController } from "@/features/users/controllers/user.controller";
+import { ptBR } from "date-fns/locale";
 import { useAuth } from "@/contexts/auth-context";
 
 export default function Dashboard() {
   const { user } = useAuth();
   const [profile, setProfile] = useState<UserRead | undefined>(undefined);
+
+  const [transactions, setTransactions] = useState<TransactionRead[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [nextCursor, setNextCursor] = useState<DocumentSnapshot | null>(null);
+
+  const [loading, setLoading] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
 
   useEffect(() => {
     async function loadUser() {
@@ -34,6 +45,7 @@ export default function Dashboard() {
       try {
         const profileFound = (await getUserByIdController(user.uid)) as
           UserRead | undefined;
+
         setProfile(profileFound);
       } finally {
         setIsLoading(false);
@@ -42,6 +54,31 @@ export default function Dashboard() {
 
     loadUser();
   }, [user]);
+
+  const loadTransactions = async () => {
+    try {
+      setLoading(true);
+
+      const result = await getTransactionsController({
+        limit: 5,
+        cursor: nextCursor ?? undefined,
+      });
+
+      setTransactions((prev) => [...prev, ...result.transactions]);
+      setNextCursor(result.cursor);
+      setHasMore(!!result.cursor);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const initialized = useRef(false);
+
+  useEffect(() => {
+    if (initialized.current) return;
+    initialized.current = true;
+    loadTransactions();
+  }, []);
 
   const calculateProgress = (userPoints: number) => {
     const currentIndex = LEVELS.findLastIndex(
@@ -71,6 +108,15 @@ export default function Dashboard() {
       earnedPoints,
       pointsToNextLevel,
     };
+  };
+
+  const calculateElapsedTime = (transaction: TransactionRead) => {
+    const createdAt = transaction.createdAt.toDate();
+
+    return formatDistanceToNow(createdAt, {
+      addSuffix: true,
+      locale: ptBR,
+    });
   };
 
   const progress = calculateProgress(profile?.points || 0);
@@ -136,7 +182,7 @@ export default function Dashboard() {
           )}
         </ul>
       )}
-      <article className="bg-zinc-200/50 flex flex-col gap-2 w-full rounded-xl p-2">
+      <article className="bg-zinc-200/50 flex flex-col gap-4 w-full rounded-xl p-2">
         <section className="flex flex-col gap-2">
           <div className="flex flex-row justify-between">
             <h3 className="text-violet-950/80 text-base font-ubuntu font-medium">
@@ -150,45 +196,35 @@ export default function Dashboard() {
               />
             </Link>
           </div>
-          <div className="bg-slate-100 flex flex-row justify-between items-center gap-3 rounded-xl p-2">
-            <div className="bg-linear-to-tr from-yellow-600 to-yellow-500 rounded-xl p-2">
-              <Clover size={20} className="text-yellow-200" />
+          {transactions.map((tr) => (
+            <div
+              key={tr.id}
+              className="bg-slate-100 flex flex-row justify-between items-center gap-3 rounded-xl p-2"
+            >
+              {tr.type === "earn" ? (
+                <div className="bg-linear-to-tr from-yellow-600 to-yellow-500 rounded-xl p-2">
+                  <Clover size={20} className="text-yellow-200" />
+                </div>
+              ) : (
+                <div className="bg-linear-to-tr from-violet-600 to-violet-500 rounded-xl p-2">
+                  <Gift size={20} className="text-violet-200" />
+                </div>
+              )}
+              <div className="flex flex-row justify-between items-center flex-1">
+                <span className="text-slate-800 text-sm font-ubuntu font-medium">
+                  {`${tr.type === "earn" ? "+" : "-"} ${Math.trunc(tr.amount)} pontos`}
+                </span>
+                <span className="text-slate-500 text-xs font-ubuntu">
+                  {calculateElapsedTime(tr)}
+                </span>
+              </div>
             </div>
-            <div className="flex flex-row justify-between items-center flex-1">
-              <span className="text-slate-800 text-sm font-ubuntu font-medium">
-                +50 pts loja X
-              </span>
-              <span className="text-slate-500 text-xs font-ubuntu">
-                2 min atras
-              </span>
-            </div>
-          </div>
-          <div className="bg-slate-100 flex flex-row justify-between items-center gap-3 rounded-xl p-2">
-            <div className="bg-linear-to-tr from-violet-600 to-violet-500 rounded-xl p-2">
-              <Gift size={20} className="text-violet-200" />
-            </div>
-            <div className="flex flex-row justify-between items-center flex-1">
-              <span className="text-slate-800 text-sm font-ubuntu font-medium">
-                +50 pts loja X
-              </span>
-              <span className="text-slate-500 text-xs font-ubuntu">
-                2 min atras
-              </span>
-            </div>
-          </div>
-          <div className="bg-slate-100 flex flex-row justify-between items-center gap-3 rounded-xl p-2">
-            <div className="bg-linear-to-tr from-yellow-600 to-yellow-500 rounded-xl p-2">
-              <Clover size={20} className="text-yellow-200" />
-            </div>
-            <div className="flex flex-row justify-between items-center flex-1">
-              <span className="text-slate-800 text-sm font-ubuntu font-medium">
-                +50 pts loja X
-              </span>
-              <span className="text-slate-500 text-xs font-ubuntu">
-                2 min atras
-              </span>
-            </div>
-          </div>
+          ))}
+          {hasMore && (
+            <LaminatedButton onClick={loadTransactions} disabled={loading}>
+              {loading ? "Carregando..." : "Carregar mais"}
+            </LaminatedButton>
+          )}
         </section>
         <section>
           <h3 className="text-violet-950/80 text-base font-ubuntu font-medium">
