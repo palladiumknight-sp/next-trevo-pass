@@ -122,7 +122,27 @@ export interface AuthContextProps {
   loading: boolean;
 }
 
+export type TransactionStatus =
+  "pending" | "completed" | "cancelled" | "expired";
+
+export interface TransactionFilters {
+  customerId?: string;
+  storeId?: string;
+  employeeId?: string;
+
+  campaignId?: string;
+  rewardId?: string;
+  referenceId?: string;
+
+  event?: EventType;
+  status?: TransactionStatus;
+
+  startDate?: Timestamp;
+  endDate?: Timestamp;
+}
+
 export interface GetTransactionsInput {
+  filters?: TransactionFilters;
   limit: number;
   cursor?: DocumentSnapshot;
 }
