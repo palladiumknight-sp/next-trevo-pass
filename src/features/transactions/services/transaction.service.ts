@@ -1,4 +1,9 @@
-import { CreateTransactionInput, TransactionRead, UserRead } from "@/@types";
+import {
+  CreateTransactionInput,
+  GetTransactionsInput,
+  TransactionRead,
+  UserRead,
+} from "@/@types";
 import {
   Timestamp,
   collection,
@@ -10,6 +15,7 @@ import {
 import { AppError } from "@/utils/app-error";
 import { calculatePoints } from "@/utils/points-engine";
 import { db } from "@/lib/firebase/firestore";
+import { getTransactionsRepository } from "../repositories/transaction.repository";
 
 export async function createTransactionService(data: CreateTransactionInput) {
   const { transactionId, customerId } = data;
@@ -66,4 +72,32 @@ export async function createTransactionService(data: CreateTransactionInput) {
   });
 
   return transactionResult;
+}
+
+export async function getTransactionsService({
+  limit,
+  cursor,
+}: GetTransactionsInput) {
+  if (limit <= 0) {
+    throw new AppError(
+      "INVALID_LIMIT",
+      "O limite deve ser maior que zero",
+      400,
+    );
+  }
+
+  if (limit > 100) {
+    throw new AppError(
+      "LIMIT_EXCEEDED",
+      "O limite máximo permitido é 100",
+      400,
+    );
+  }
+
+  const transactions = await getTransactionsRepository({
+    limit,
+    cursor,
+  });
+
+  return transactions;
 }

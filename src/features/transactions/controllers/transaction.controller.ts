@@ -1,5 +1,10 @@
-import { CreateTransactionInput } from "@/@types";
-import { createTransactionService } from "../services/transaction.service";
+import { CreateTransactionInput, GetTransactionsInput } from "@/@types";
+import {
+  createTransactionService,
+  getTransactionsService,
+} from "../services/transaction.service";
+
+import { handlerError } from "@/utils/handler-error";
 
 export async function createTransactionController(
   data: CreateTransactionInput,
@@ -10,5 +15,13 @@ export async function createTransactionController(
     return transaction;
   } catch (error) {
     throw error;
+  }
+}
+
+export async function getTransactionsController(data: GetTransactionsInput) {
+  try {
+    return await getTransactionsService(data);
+  } catch (error) {
+    throw handlerError(error);
   }
 }

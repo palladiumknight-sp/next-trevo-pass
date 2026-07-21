@@ -121,3 +121,8 @@ export interface AuthContextProps {
   user: User | null;
   loading: boolean;
 }
+
+export interface GetTransactionsInput {
+  limit: number;
+  cursor?: DocumentSnapshot;
+}
