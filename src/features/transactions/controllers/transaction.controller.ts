@@ -14,7 +14,7 @@ export async function createTransactionController(
 
     return transaction;
   } catch (error) {
-    throw error;
+    throw handlerError(error);
   }
 }
 

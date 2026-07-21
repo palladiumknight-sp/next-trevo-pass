@@ -75,6 +75,7 @@ export async function createTransactionService(data: CreateTransactionInput) {
 }
 
 export async function getTransactionsService({
+  filters,
   limit,
   cursor,
 }: GetTransactionsInput) {
@@ -95,6 +96,7 @@ export async function getTransactionsService({
   }
 
   const transactions = await getTransactionsRepository({
+    filters: { ...filters, customerId: filters?.customerId },
     limit,
     cursor,
   });

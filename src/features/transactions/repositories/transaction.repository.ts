@@ -1,9 +1,7 @@
 import {
-  GetTransactionsInput,
-  TransactionBase,
-  TransactionRead,
-} from "@/@types";
-import {
+  DocumentData,
+  QueryConstraint,
+  QueryDocumentSnapshot,
   addDoc,
   collection,
   getDocs,
@@ -12,7 +10,13 @@ import {
   query,
   runTransaction,
   startAfter,
+  where,
 } from "firebase/firestore";
+import {
+  GetTransactionsInput,
+  TransactionBase,
+  TransactionRead,
+} from "@/@types";
 
 import { db } from "@/lib/firebase/firestore";
 
@@ -40,25 +44,45 @@ export async function createTransactionRepository(data: TransactionBase) {
 }
 
 export async function getTransactionsRepository({
+  filters,
   limit: pageSize,
   cursor,
 }: GetTransactionsInput) {
-  let q;
+  const constraints: QueryConstraint[] = [];
+
+  if (filters?.customerId) {
+    constraints.push(where("customerId", "==", filters.customerId));
+  }
+
+  if (filters?.employeeId) {
+    constraints.push(where("employeeId", "==", filters.employeeId));
+  }
+
+  if (filters?.campaignId) {
+    constraints.push(where("campaignId", "==", filters.campaignId));
+  }
+
+  if (filters?.rewardId) {
+    constraints.push(where("rewardId", "==", filters.rewardId));
+  }
+
+  if (filters?.event) {
+    constraints.push(where("event", "==", filters.event));
+  }
+
+  if (filters?.status) {
+    constraints.push(where("status", "==", filters.status));
+  }
+
+  constraints.push(orderBy("createdAt", "desc"));
 
   if (cursor) {
-    q = query(
-      collection(db, "transactions"),
-      orderBy("createdAt", "desc"),
-      startAfter(cursor),
-      limit(pageSize + 1),
-    );
-  } else {
-    q = query(
-      collection(db, "transactions"),
-      orderBy("createdAt", "desc"),
-      limit(pageSize + 1),
-    );
+    constraints.push(startAfter(cursor));
   }
+
+  constraints.push(limit(pageSize + 1));
+
+  const q = query(collection(db, "transactions"), ...constraints);
 
   const snapshot = await getDocs(q);
 
@@ -66,12 +90,16 @@ export async function getTransactionsRepository({
 
   const docs = hasMore ? snapshot.docs.slice(0, pageSize) : snapshot.docs;
 
-  const lastVisible = docs[docs.length - 1];
-
-  const transactions = docs.map((doc) => ({
+  const transactions: TransactionRead[] = docs.map((doc) => ({
     id: doc.id,
     ...doc.data(),
   })) as TransactionRead[];
 
-  return { transactions, cursor: lastVisible, hasMore };
+  const nextCursor = hasMore ? docs[docs.length - 1] : null;
+
+  return {
+    transactions,
+    cursor: nextCursor,
+    hasMore,
+  };
 }
