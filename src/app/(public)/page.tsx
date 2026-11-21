@@ -1,6 +1,6 @@
-/* eslint-disable @next/next/no-img-element */
 import { Container, Footer, Header } from "@/components/layout";
 
+import Image from "next/image";
 import { LaminatedLink } from "@/components/ui/laminated";
 import type { Metadata } from "next";
 
@@ -106,11 +106,13 @@ export default function Home() {
                 key={index}
                 className="flex flex-row items-center gap-4 flex-1 w-full bg-slate-200 p-4 rounded-md shadow-md md:flex-col md:gap-2 lg:max-w-75"
               >
-                <img
+                <Image
                   src={el.icon}
-                  className="w-14 md:w-32"
-                  srcSet={`${el.icon.slice(0, -4)}@2x.png 2x,${el.icon.slice(0, -4)}@3x.png 3x`}
+                  width={128}
+                  height={128}
+                  sizes="(min-width: 768px) 128px, 56px"
                   alt={el.alt}
+                  className="w-14 md:w-32 h-auto"
                 />
                 <div className="flex flex-col">
                   <span className="text-base text-violet-900 font-ubuntu font-bold md:text-center">
