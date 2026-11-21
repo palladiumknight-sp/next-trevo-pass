@@ -15,13 +15,13 @@ const inter = Inter({
 const lato = Lato({
   variable: "--font-lato",
   subsets: ["latin"],
-  weight: ["300", "400", "700", "900"]
+  weight: ["300", "400", "700", "900"],
 });
 
 const ubuntu = Ubuntu({
   variable: "--font-ubuntu",
   subsets: ["latin"],
-  weight: ["300", "400", "500", "700"]
+  weight: ["300", "400", "500", "700"],
 });
 
 export function generateViewport() {
@@ -98,7 +98,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-BR" className="scroll-smooth">
-      <body className={`${inter.variable} ${lato.variable} ${ubuntu.variable} bg-slate-100 antialiased`}>
+      <body
+        className={`${inter.variable} ${lato.variable} ${ubuntu.variable} bg-slate-100 antialiased`}
+      >
         <AuthProvider>
           <Toaster position="bottom-right" />
           {children}

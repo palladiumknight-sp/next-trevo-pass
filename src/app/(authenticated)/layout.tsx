@@ -9,7 +9,10 @@ export default function AuthenticatedLayout({
 }) {
   return (
     <ProtectedRoute>
-      <Container className="flex flex-col md:flex-row w-full md:max-h-full">
+      <Container
+        maxWidth="full"
+        className="flex flex-col md:flex-row md:max-h-full"
+      >
         <SideBar />
         <div className="hidden h-screen w-64 md:block"></div>
         {children}
