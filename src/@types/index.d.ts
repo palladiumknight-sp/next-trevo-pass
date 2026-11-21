@@ -49,7 +49,7 @@ export interface UserForm extends UserBase {
 export interface TransactionBase {
   referenceId: string;
   establishmentId?: string;
-  customerId?: string;
+  userId?: string;
   createdBy: string;
   createdByType: UserRole;
   amount: number;
@@ -59,6 +59,7 @@ export interface TransactionBase {
 }
 
 export interface TransactionCreate extends TransactionBase {
+  userId: string;
   createdAt: FieldValue;
   updatedAt: FieldValue;
   expiresAt: Timestamp;
@@ -80,8 +81,8 @@ export interface TransactionUser extends TransactionRead {
 }
 
 export interface CreateTransactionInput {
-  transactionId: string;
-  customerId: string;
+  qrTransactionId: string;
+  userId: string;
 }
 
 export interface QrCode {
@@ -126,7 +127,7 @@ export type TransactionStatus =
   "pending" | "completed" | "cancelled" | "expired";
 
 export interface TransactionFilters {
-  customerId?: string;
+  userId?: string;
   storeId?: string;
   employeeId?: string;
 
