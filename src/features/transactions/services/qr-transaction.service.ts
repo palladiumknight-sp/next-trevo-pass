@@ -3,7 +3,6 @@ import {
   TransactionCreate,
   TransactionUpdate,
 } from "@/@types";
-// import { calculatePoints } from "@/utils/points-engine";
 import {
   createQrTransactionRepository,
   deleteQrTransactionRepository,
@@ -14,21 +13,38 @@ import {
 
 import { AppError } from "@/utils/app-error";
 import { checkUserPermission } from "@/utils/permissions";
-import { defineEvent } from "@/utils/define-event";
 import { generateQrTimestamps } from "@/utils/timestamps";
 import { getUserByIdService } from "@/features/users/services/user.service";
 
 export async function createQrTransactionService(
   data: CreateQrTransactionInput,
 ) {
-  const { user, event, referenceId, amount } = data;
+  const { user, source, type, referenceId, amount } = data;
 
   if (!user || !user.uid) {
     throw new AppError("INVALID_USER", "Usuário inválido", 400);
   }
 
-  if (!event || !["purchase", "reward", "campaign"].includes(event)) {
-    throw new AppError("INVALID_EVENT", "Evento inválido", 400);
+  if (!source || !["purchase", "reward", "campaign"].includes(source)) {
+    throw new AppError("INVALID_SOURCE", "Fonte inválida", 400);
+  }
+
+  if (!type || !["earn", "redeem"].includes(type)) {
+    throw new AppError("INVALID_TYPE", "Tipo inválido", 400);
+  }
+
+  const validCombinations: Record<string, string[]> = {
+    purchase: ["earn"],
+    campaign: ["earn"],
+    reward: ["redeem"],
+  };
+
+  if (!validCombinations[source]?.includes(type)) {
+    throw new AppError(
+      "INVALID_SOURCE_TYPE_COMBINATION",
+      "A combinação entre origem e tipo é inválida",
+      400,
+    );
   }
 
   if (!referenceId) {
@@ -47,14 +63,13 @@ export async function createQrTransactionService(
 
   checkUserPermission(role, ["employee", "manager", "admin"]);
 
-  const { source, type } = defineEvent(event);
   const { createdAt, updatedAt, expiresAt } = generateQrTimestamps(60);
 
   const qrTransaction: TransactionCreate = {
     referenceId,
     establishmentId,
-    createdBy: user.uid,
-    createdByType: role,
+    createdById: user.uid,
+    createdByRole: role,
     amount,
     source,
     type,

@@ -106,8 +106,16 @@ export async function getTransactionsRepository({
     constraints.push(where("userId", "==", filters.userId));
   }
 
+  if (filters?.createdById) {
+    constraints.push(where("createdById", "==", filters.createdById));
+  }
+
   if (filters?.employeeId) {
     constraints.push(where("employeeId", "==", filters.employeeId));
+  }
+
+  if (filters?.establishmentId) {
+    constraints.push(where("establishmentId", "==", filters.establishmentId));
   }
 
   if (filters?.campaignId) {
@@ -118,8 +126,12 @@ export async function getTransactionsRepository({
     constraints.push(where("rewardId", "==", filters.rewardId));
   }
 
-  if (filters?.event) {
-    constraints.push(where("event", "==", filters.event));
+  if (filters?.type) {
+    constraints.push(where("type", "==", filters.type));
+  }
+
+  if (filters?.source) {
+    constraints.push(where("source", "==", filters.source));
   }
 
   if (filters?.status) {
