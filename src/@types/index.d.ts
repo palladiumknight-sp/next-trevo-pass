@@ -46,20 +46,23 @@ export interface UserForm extends UserBase {
 }
 
 //TRANSACTION (Base, Create, Read, Update)
+
+type TransactionType = "earn" | "redeem";
+type TransactionSource = "purchase" | "reward" | "campaign";
+
 export interface TransactionBase {
   referenceId: string;
   establishmentId?: string;
   userId?: string;
-  createdBy: string;
-  createdByType: UserRole;
+  createdById: string;
+  createdByRole: UserRole;
   amount: number;
-  source: "purchase" | "reward" | "campaign";
-  type: "earn" | "redeem" | "bonus";
+  source: TransactionSource;
+  type: TransactionType;
   version: number;
 }
 
 export interface TransactionCreate extends TransactionBase {
-  userId: string;
   createdAt: FieldValue;
   updatedAt: FieldValue;
   expiresAt: Timestamp;
@@ -92,11 +95,10 @@ export interface QrCode {
   payload: string;
 }
 
-export type EventType = "purchase" | "reward" | "campaign";
-
 export interface TransactionForm {
-  event: EventType;
   referenceId: string;
+  source: TransactionSource;
+  type: TransactionType;
   amount: number;
 }
 
@@ -113,8 +115,9 @@ export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
 
 export interface CreateQrTransactionInput {
   user: User | null;
-  event: EventType;
   referenceId: string;
+  source: TransactionSource;
+  type: TransactionType;
   amount: number;
 }
 
@@ -128,14 +131,16 @@ export type TransactionStatus =
 
 export interface TransactionFilters {
   userId?: string;
-  storeId?: string;
   employeeId?: string;
+  establishmentId?: string;
+  createdById?: string;
 
   campaignId?: string;
   rewardId?: string;
   referenceId?: string;
 
-  event?: EventType;
+  type?: TransactionType;
+  source?: TransactionSource;
   status?: TransactionStatus;
 
   startDate?: Timestamp;
