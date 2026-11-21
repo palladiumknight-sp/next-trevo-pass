@@ -1,7 +1,8 @@
-import Image from "next/image";
-import type { Metadata } from "next";
+/* eslint-disable @next/next/no-img-element */
 import { Container, Footer, Header } from "@/components/layout";
+
 import { LaminatedLink } from "@/components/ui/laminated";
+import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Trevo Pass - Programa de Fidelidade Trevo Açaí",
@@ -75,58 +76,53 @@ export default function Home() {
     <div className="flex flex-col min-h-screen">
       <Header />
       <main className="w-full bg-slate-100">
-        <Container>
-          <div className="flex flex-col gap-8 p-4 md:p-8 lg:p-12">
-            <picture className="flex flex-col items-center">
-              <source
-                media="(max-width: 768px)"
-                srcSet="/illustrations/hero-mobile.png"
-              />
-              <source
-                media="(max-width: 1200px)"
-                srcSet="/illustrations/hero-tablet.png"
-              />
-              <img
-                src="/illustrations/hero-desktop.png"
-                alt="hero trevo pass"
-                className="max-h-96"
-              />
-            </picture>
-            <LaminatedLink
-              href="/register"
-              color="yellow"
-              size="lg"
-              className="text-center max-w-75 mx-auto"
-            >
-              Cadastre-se Agora!
-            </LaminatedLink>
-            <ul
-              className="flex flex-col md:flex-row gap-4
-         items-center justify-between"
-            >
-              {benefits.map((el, index) => (
-                <li
-                  key={index}
-                  className="flex flex-row items-center gap-4 flex-1 w-full bg-slate-200 p-4 rounded-md shadow-md md:flex-col md:gap-2 lg:max-w-75"
-                >
-                  <img
-                    src={el.icon}
-                    className="w-14 md:w-32"
-                    srcSet={`${el.icon.slice(0, -4)}@2x.png 2x,${el.icon.slice(0, -4)}@3x.png 3x`}
-                    alt={el.alt}
-                  />
-                  <div className="flex flex-col">
-                    <span className="text-lg text-violet-900 font-ubuntu font-bold md:text-center">
-                      {el.title}
-                    </span>
-                    <span className="text-xs text-violet-700 font-lato font-normal md:text-center">
-                      {el.description}
-                    </span>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </div>
+        <Container className="flex flex-col gap-8 px-4 py-8 md:p-8 lg:p-12">
+          <picture className="flex flex-col items-center">
+            <source
+              media="(max-width: 768px)"
+              srcSet="/illustrations/hero-mobile.png"
+            />
+            <source
+              media="(max-width: 1200px)"
+              srcSet="/illustrations/hero-tablet.png"
+            />
+            <img
+              src="/illustrations/hero-desktop.png"
+              alt="hero trevo pass"
+              className="max-h-96"
+            />
+          </picture>
+          <LaminatedLink
+            href="/register"
+            color="yellow"
+            size="lg"
+            className="text-center max-w-75 mx-auto"
+          >
+            Cadastre-se Agora!
+          </LaminatedLink>
+          <ul className="flex flex-col md:flex-row gap-8 items-center justify-between">
+            {benefits.map((el, index) => (
+              <li
+                key={index}
+                className="flex flex-row items-center gap-4 flex-1 w-full bg-slate-200 p-4 rounded-md shadow-md md:flex-col md:gap-2 lg:max-w-75"
+              >
+                <img
+                  src={el.icon}
+                  className="w-14 md:w-32"
+                  srcSet={`${el.icon.slice(0, -4)}@2x.png 2x,${el.icon.slice(0, -4)}@3x.png 3x`}
+                  alt={el.alt}
+                />
+                <div className="flex flex-col">
+                  <span className="text-base text-violet-900 font-ubuntu font-bold md:text-center">
+                    {el.title}
+                  </span>
+                  <span className="text-xs text-violet-700 font-lato font-normal md:text-center">
+                    {el.description}
+                  </span>
+                </div>
+              </li>
+            ))}
+          </ul>
         </Container>
       </main>
       <Footer />

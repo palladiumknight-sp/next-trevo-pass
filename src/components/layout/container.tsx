@@ -1,7 +1,26 @@
 import { ContainerProps } from "@/@types";
+import { cn } from "@/lib/utils";
 
-export const Container = ({ children, className = "" }: ContainerProps) => {
-  const classname = `w-screen min-h-screen mx-auto  ${className}`;
+const maxWidthClasses = {
+  full: "max-w-full",
+  sm: "max-w-sm",
+  md: "max-w-md",
+  lg: "max-w-lg",
+  xl: "max-w-xl",
+  "2xl": "max-w-2xl",
+  "7xl": "max-w-7xl",
+} as const;
 
-  return <div className={classname}>{children}</div>;
+export const Container = ({
+  children,
+  className,
+  maxWidth = "7xl",
+}: ContainerProps) => {
+  return (
+    <section
+      className={cn("w-full mx-auto", maxWidthClasses[maxWidth], className)}
+    >
+      {children}
+    </section>
+  );
 };
