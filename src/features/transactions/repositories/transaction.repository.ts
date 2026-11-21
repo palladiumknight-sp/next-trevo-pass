@@ -1,10 +1,16 @@
 import {
-  DocumentData,
+  CreateTransactionInput,
+  GetTransactionsInput,
+  TransactionRead,
+  UserRead,
+} from "@/@types";
+import {
   QueryConstraint,
-  QueryDocumentSnapshot,
-  addDoc,
+  Timestamp,
   collection,
+  doc,
   getDocs,
+  increment,
   limit,
   orderBy,
   query,
@@ -12,35 +18,81 @@ import {
   startAfter,
   where,
 } from "firebase/firestore";
-import {
-  GetTransactionsInput,
-  TransactionBase,
-  TransactionRead,
-} from "@/@types";
 
+import { AppError } from "@/utils/app-error";
+import { calculatePoints } from "@/utils/points-engine";
 import { db } from "@/lib/firebase/firestore";
 
 const TRANSACTIONS_COLLECTION = "transactions";
-
 const transactionsCollection = () => collection(db, TRANSACTIONS_COLLECTION);
 
-export async function createTransactionRepository(data: TransactionBase) {
-  const transactionRef = await addDoc(transactionsCollection(), data);
+const USER_COLLECTION = "users";
+const usersCollection = () => collection(db, USER_COLLECTION);
 
-  await runTransaction(db, async (tx) => {
-    const transactionDoc = await tx.get(transactionRef);
+const QR_TRANSACTIONS_COLLECTION = "qr_transactions";
+const qrTransactionsCollection = () =>
+  collection(db, QR_TRANSACTIONS_COLLECTION);
 
-    if (transactionDoc.exists()) {
-      throw new Error("QR Code ja utilizado");
-    }
+export async function createTransactionRepository({
+  qrTransactionId,
+  userId,
+}: CreateTransactionInput) {
+  const transaction = await runTransaction(db, async (tx) => {
+    const qrRef = doc(qrTransactionsCollection(), qrTransactionId);
+    const userRef = doc(usersCollection(), userId);
 
-    tx.set(transactionRef, {
-      ...data,
-      qrTransactionId: transactionRef.id,
+    const qrSnap = await tx.get(qrRef);
+
+    if (!qrSnap.exists())
+      throw new AppError("QR_CODE_NOT_FOUND", "QR Code nao encontrado", 404);
+
+    const qrTransaction = qrSnap.data() as TransactionRead;
+
+    if (qrTransaction.usedAt)
+      throw new AppError("USED_QR_CODE", "Esse QR Code ja foi utilizado", 403);
+
+    const now = Timestamp.now();
+
+    if (now.toMillis() > qrTransaction.expiresAt.toMillis())
+      throw new AppError("EXPIRED_QR_CODE", "Esse QR Code expirou", 400);
+
+    const userSnap = await tx.get(userRef);
+
+    if (!userSnap.exists())
+      throw new AppError("USER_NOT_FOUND", "Usuario nao encontrado", 404);
+
+    const user = userSnap.data() as UserRead;
+
+    const earnedPoints = calculatePoints(qrTransaction.amount, user.level);
+
+    tx.update(userRef, {
+      points: increment(earnedPoints),
+      totalPointsEarned: increment(earnedPoints),
+      updatedAt: now,
     });
+
+    tx.update(qrRef, { usedAt: now, updatedAt: now });
+
+    const transactionRef = doc(transactionsCollection());
+
+    const userTransaction = {
+      userId,
+      ...qrTransaction,
+      id: transactionRef.id,
+      createdAt: now,
+      updatedAt: now,
+      expiresAt: qrTransaction.expiresAt,
+      qrTransactionId: qrSnap.id,
+      usedAt: now,
+      version: 1,
+    };
+
+    tx.set(transactionRef, userTransaction);
+
+    return userTransaction;
   });
 
-  return { id: transactionRef.id, data };
+  return { id: transaction.id, transaction };
 }
 
 export async function getTransactionsRepository({
@@ -50,8 +102,8 @@ export async function getTransactionsRepository({
 }: GetTransactionsInput) {
   const constraints: QueryConstraint[] = [];
 
-  if (filters?.customerId) {
-    constraints.push(where("customerId", "==", filters.customerId));
+  if (filters?.userId) {
+    constraints.push(where("userId", "==", filters.userId));
   }
 
   if (filters?.employeeId) {
@@ -82,7 +134,7 @@ export async function getTransactionsRepository({
 
   constraints.push(limit(pageSize + 1));
 
-  const q = query(collection(db, "transactions"), ...constraints);
+  const q = query(transactionsCollection(), ...constraints);
 
   const snapshot = await getDocs(q);
 
@@ -103,3 +155,7 @@ export async function getTransactionsRepository({
     hasMore,
   };
 }
+
+// Se quiser, posso apontar exatamente onde corrigir cada função e sugerir um fluxo mais seguro para Firebase.
+// O QR reader usa JSON.parse(decodedText) direto do QR; poderia validar o payload com esquema.
+// O fluxo de geração de QR permite qualquer usuário com role até admin criar códigos. Falta controle forte de quem pode gerar e consumir.
