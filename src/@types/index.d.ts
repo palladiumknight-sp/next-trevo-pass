@@ -100,10 +100,10 @@ export interface TransactionForm {
 }
 
 export interface ContainerProps {
-  children: React.ReactNode;
+  children?: React.ReactNode;
+  maxWidth?: "full" | "sm" | "md" | "lg" | "xl" | "2xl" | "7xl";
   className?: string;
 }
-
 export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   icon?: LucideIcon;
   label: string;
