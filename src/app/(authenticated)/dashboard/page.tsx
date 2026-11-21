@@ -15,7 +15,7 @@ import {
   TypingAnimation,
 } from "@/components/ui";
 import { TransactionRead, UserRead } from "@/@types";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { DocumentSnapshot } from "firebase/firestore";
 import Image from "next/image";
@@ -55,12 +55,14 @@ export default function Dashboard() {
     loadUser();
   }, [user]);
 
-  const loadTransactions = async () => {
+  const loadTransactions = useCallback(async () => {
+    if (!profile?.id) return;
+
     try {
       setLoading(true);
 
       const result = await getTransactionsController({
-        filters: { userId: profile?.id },
+        filters: { userId: profile.id },
         limit: 5,
         cursor: nextCursor ?? undefined,
       });
@@ -71,15 +73,12 @@ export default function Dashboard() {
     } finally {
       setLoading(false);
     }
-  };
-
-  const initialized = useRef(false);
+  }, [nextCursor, profile]);
 
   useEffect(() => {
-    if (initialized.current) return;
-    initialized.current = true;
+    if (!profile?.id) return;
     loadTransactions();
-  }, []);
+  }, [loadTransactions, profile?.id]);
 
   const calculateProgress = (userPoints: number) => {
     const currentIndex = LEVELS.findLastIndex(

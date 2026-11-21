@@ -2,9 +2,10 @@
 
 import {
   CreateQrTransactionInput,
-  EventType,
   QrCode,
   TransactionForm,
+  TransactionSource,
+  TransactionType,
 } from "@/@types";
 import {
   Select,
@@ -28,7 +29,8 @@ export default function Generate() {
   const [code, setCode] = useState<QrCode | null>(null);
   const [currentTime, setCurrentTime] = useState(() => Date.now());
   const [transaction, setTransaction] = useState<TransactionForm>({
-    event: "purchase",
+    source: "purchase",
+    type: "earn",
     referenceId: "",
     amount: 0,
   });
@@ -51,8 +53,11 @@ export default function Generate() {
         return;
       }
 
+      console.log("Gerando QR Code com os dados: ", transaction);
+
       const payloadQr: CreateQrTransactionInput = {
-        event: transaction.event,
+        source: transaction.source,
+        type: transaction.type,
         referenceId: transaction.referenceId,
         amount: transaction.amount,
         user,
@@ -115,14 +120,18 @@ export default function Generate() {
 
   // }, [isExpired])
 
-  const EVENTS = [
-    { id: 1, text: "Compra", value: "purchase" },
-    { id: 2, text: "Resgate", value: "reward" },
-    { id: 3, text: "Campanha", value: "campaign" },
+  const SOURCES: {
+    text: string;
+    source: TransactionSource;
+    type: TransactionType;
+  }[] = [
+    { text: "Compra", source: "purchase", type: "earn" },
+    { text: "Resgate", source: "reward", type: "redeem" },
+    { text: "Campanha", source: "campaign", type: "earn" },
   ];
 
   return (
-    <div className="flex flex-col flex-1">
+    <div className="flex flex-col flex-1 h-screen">
       {!code || isExpired ? (
         <form
           className="flex flex-col justify-center gap-4 p-4 flex-1 max-w-150 mx-auto"
@@ -137,10 +146,18 @@ export default function Generate() {
             </p>
           </div>
           <Select
-            value={transaction.event}
-            onValueChange={(value) =>
-              setTransaction((prev) => ({ ...prev, event: value as EventType }))
-            }
+            value={transaction.source}
+            onValueChange={(value) => {
+              const selected = SOURCES.find((item) => item.source === value);
+
+              if (!selected) return;
+
+              setTransaction((prev) => ({
+                ...prev,
+                source: selected.source,
+                type: selected.type,
+              }));
+            }}
           >
             <SelectTrigger
               className="font-ubuntu px-4 py-5 border-2 border-yellow-500 w-full"
@@ -153,13 +170,13 @@ export default function Generate() {
             </SelectTrigger>
             <SelectContent>
               <SelectGroup>
-                {EVENTS.map((event) => (
+                {SOURCES.map((item) => (
                   <SelectItem
-                    key={event.id}
-                    value={event.value}
+                    key={item.source}
+                    value={item.source}
                     className="px-4 py-3 font-ubuntu"
                   >
-                    {event.text}
+                    {item.text}
                   </SelectItem>
                 ))}
               </SelectGroup>
