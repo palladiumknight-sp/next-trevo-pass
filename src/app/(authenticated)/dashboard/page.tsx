@@ -60,7 +60,7 @@ export default function Dashboard() {
       setLoading(true);
 
       const result = await getTransactionsController({
-        filters: { customerId: profile?.id },
+        filters: { userId: profile?.id },
         limit: 5,
         cursor: nextCursor ?? undefined,
       });

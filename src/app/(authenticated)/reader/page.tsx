@@ -47,8 +47,8 @@ export default function Reader() {
           }
 
           await createTransactionController({
-            transactionId: data.id,
-            customerId: user.uid,
+            qrTransactionId: data.id,
+            userId: user.uid,
           });
 
           await scanner.clear().catch(() => {});
