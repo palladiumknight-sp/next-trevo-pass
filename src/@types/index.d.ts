@@ -1,3 +1,4 @@
+import { User, UserCredential } from "firebase/auth";
 import { FieldValue, Timestamp } from "firebase/firestore";
 import { InputHTMLAttributes } from "react";
 
@@ -124,6 +125,11 @@ export interface CreateQrTransactionInput {
 export interface AuthContextProps {
   user: User | null;
   loading: boolean;
+  status: "loading" | "authenticated" | "unauthenticated";
+  signIn: (email: string, password: string) => Promise<UserCredential>;
+  signOut: () => Promise<void>;
+  sendPasswordResetEmail: (email: string) => Promise<void>;
+  refreshUser: () => Promise<User | null>;
 }
 
 export type TransactionStatus =
