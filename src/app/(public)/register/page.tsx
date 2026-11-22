@@ -50,14 +50,14 @@ export default function Register() {
           <span className="text-slate-500 text-center text-xs">
             Ao continuar, voce concorda com os{" "}
             <Link
-              href="/"
+              href="/terms-of-service"
               className="text-violet-900 font-bold font-ubuntu underline cursor-pointer"
             >
               Termos de Servico
             </Link>{" "}
             e a{" "}
             <Link
-              href="/"
+              href="/privacy-policy"
               className="text-violet-900 font-bold font-ubuntu underline cursor-pointer"
             >
               Politica de Privacidade
