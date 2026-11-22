@@ -157,10 +157,6 @@ export default function Profile() {
                   key={item.id}
                   type="button"
                   onClick={() => {
-                    if (item.id === "data") {
-                      // setName(profile.name);
-                    }
-
                     if (item.id !== "security" && item.id !== "data") {
                       toast.error(
                         "Esta funcionalidade ainda não está disponível.",
@@ -171,13 +167,13 @@ export default function Profile() {
 
                     setActiveModal(item.id);
                   }}
-                  className="flex min-h-19 items-center gap-4 rounded-3xl border border-violet-100 bg-white px-5 text-left text-violet-800 shadow-[0_5px_14px_rgba(91,33,182,0.10)] transition hover:-translate-y-0.5 hover:bg-violet-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-600"
+                  className="flex min-h-14 items-center gap-4 rounded-xl border border-violet-100 bg-white px-4 text-left text-violet-800 shadow-[0_5px_14px_rgba(91,33,182,0.10)] transition hover:-translate-y-0.5 hover:bg-violet-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-600"
                 >
-                  <Icon size={29} className="shrink-0 text-violet-600" />
-                  <span className="flex-1 text-lg font-semibold sm:text-xl">
+                  <Icon size={24} className="shrink-0 text-violet-800" />
+                  <span className="flex-1 text-lg font-semibold sm:text-md">
                     {item.label}
                   </span>
-                  <ChevronRight size={25} className="text-violet-300" />
+                  <ChevronRight size={24} className="text-violet-300" />
                 </button>
               );
             })}
