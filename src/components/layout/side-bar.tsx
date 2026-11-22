@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { LINKS_MENU } from "@/data/links-menu";
+import { LINKS_MENU } from "@/data/tab-bar-menu";
 import Link from "next/link";
 
 export const SideBar = () => {
