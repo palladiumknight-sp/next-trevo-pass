@@ -2,26 +2,22 @@
 
 import {
   BadgeCheck,
-  CreditCard,
+  ChevronRight,
   LogOut,
-  Mail,
-  Pencil,
-  Phone,
-  Save,
   ShieldCheck,
   UserRound,
-  X,
 } from "lucide-react";
-import { FormEvent, useEffect, useState } from "react";
 import { UserRead, UserRole } from "@/@types";
+import { useEffect, useState } from "react";
 
-import { LaminatedButton } from "@/components/ui/laminated";
+import { PROFILE_MENU } from "@/data/profile-menu";
+import { ProfileModal } from "./profile-modal";
 import { Skeleton } from "@/components/ui";
 import { getUserByIdController } from "@/features/users/controllers/user.controller";
-import { logoutUser } from "@/features/auth/repositories/auth.repository";
 import { toast } from "sonner";
-import { updateUserController } from "@/features/users/controllers/user.controller";
 import { useAuth } from "@/contexts/auth-context";
+
+export type ProfileModal = "data" | "security" | null;
 
 const ROLE_LABELS: Record<UserRole, string> = {
   customer: "Cliente",
@@ -30,19 +26,12 @@ const ROLE_LABELS: Record<UserRole, string> = {
   admin: "Administrador",
 };
 
-const PROFILE_FIELDS = [
-  { key: "email", label: "E-mail", icon: Mail },
-  { key: "phone", label: "Telefone", icon: Phone },
-  { key: "cpf", label: "CPF", icon: CreditCard },
-] as const;
-
 export default function Profile() {
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
   const [profile, setProfile] = useState<UserRead | null>(null);
-  const [name, setName] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
+  const [activeModal, setActiveModal] = useState<ProfileModal>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -57,9 +46,7 @@ export default function Profile() {
         const result = await getUserByIdController(user.uid);
         if (cancelled || !result) return;
 
-        const userProfile = result as UserRead;
-        setProfile(userProfile);
-        setName(userProfile.name);
+        setProfile(result as UserRead);
       } catch (error) {
         if (!cancelled) {
           toast.error(
@@ -80,49 +67,9 @@ export default function Profile() {
     };
   }, [user]);
 
-  const handleSave = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
-    const normalizedName = name.trim();
-    if (!profile || !normalizedName) {
-      toast.error("Informe seu nome para continuar.");
-      return;
-    }
-
-    if (normalizedName === profile.name) {
-      setIsEditing(false);
-      return;
-    }
-
-    try {
-      setIsSaving(true);
-      const updatedProfile = await updateUserController(profile.id, {
-        name: normalizedName,
-      });
-
-      if (updatedProfile) setProfile(updatedProfile as UserRead);
-      setName(normalizedName);
-      setIsEditing(false);
-      toast.success("Nome atualizado com sucesso.");
-    } catch (error) {
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : "Não foi possível atualizar seu nome.",
-      );
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  const handleCancelEdit = () => {
-    setName(profile?.name ?? "");
-    setIsEditing(false);
-  };
-
   const handleLogout = async () => {
     try {
-      await logoutUser();
+      await signOut();
       toast.success("Você saiu da sua conta.");
     } catch {
       toast.error("Não foi possível sair da conta. Tente novamente.");
@@ -138,7 +85,7 @@ export default function Profile() {
     .toUpperCase();
 
   return (
-    <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-5 p-4 md:p-6">
+    <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-5 px-4 pb-5 pt-5 md:px-6 md:pb-8">
       <header>
         <h1 className="text-2xl font-bold text-violet-950">Meu perfil</h1>
         <p className="mt-1 text-sm text-slate-600">
@@ -148,8 +95,8 @@ export default function Profile() {
 
       {isLoading ? (
         <>
-          <Skeleton className="h-36 w-full rounded-2xl" />
-          <Skeleton className="h-60 w-full rounded-2xl" />
+          <Skeleton className="h-80 w-full rounded-4xl" />
+          <Skeleton className="h-72 w-full rounded-4xl" />
         </>
       ) : !profile ? (
         <section className="rounded-2xl bg-white p-6 text-center shadow-sm">
@@ -159,118 +106,82 @@ export default function Profile() {
         </section>
       ) : (
         <>
-          <section className="flex items-center gap-4 rounded-2xl bg-linear-to-tr from-violet-950 to-violet-700 p-5 text-white shadow-sm">
-            <div className="flex size-16 shrink-0 items-center justify-center rounded-full bg-yellow-400 text-xl font-bold text-violet-950">
-              {initials || <UserRound aria-hidden="true" />}
-            </div>
-            <div className="min-w-0 flex-1">
-              <h2 className="truncate text-xl font-bold">{profile.name}</h2>
-              <p className="mt-1 text-sm text-violet-100">
-                {ROLE_LABELS[profile.role]}
-              </p>
-            </div>
-            <div className="flex items-center gap-1 rounded-full bg-white/10 px-3 py-1 text-xs font-medium">
-              <BadgeCheck size={16} aria-hidden="true" />
-              {profile.status === "active" ? "Ativa" : profile.status}
-            </div>
-          </section>
-
-          <section className="grid grid-cols-2 gap-3">
-            <article className="rounded-2xl bg-white p-4 shadow-sm">
-              <p className="text-xs font-medium text-slate-500">
-                Saldo de pontos
-              </p>
-              <p className="mt-1 text-2xl font-bold text-violet-900">
-                {profile.points.toLocaleString("pt-BR")}
-              </p>
-            </article>
-            <article className="rounded-2xl bg-white p-4 shadow-sm">
-              <p className="text-xs font-medium text-slate-500">Nível atual</p>
-              <p className="mt-1 text-2xl font-bold capitalize text-violet-900">
-                {profile.level}
-              </p>
-            </article>
-          </section>
-
-          <section className="rounded-2xl bg-white p-5 shadow-sm">
-            <div className="mb-4 flex items-center justify-between gap-3">
-              <div>
-                <h2 className="text-lg font-bold text-violet-950">
-                  Dados pessoais
-                </h2>
-                <p className="text-sm text-slate-500">
-                  Seus dados cadastrados na conta.
-                </p>
-              </div>
-              {!isEditing && (
-                <button
-                  type="button"
-                  onClick={() => setIsEditing(true)}
-                  className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold text-violet-800 transition hover:bg-violet-50"
-                >
-                  <Pencil size={16} aria-hidden="true" />
-                  Editar nome
-                </button>
-              )}
-            </div>
-
-            <form onSubmit={handleSave} className="flex flex-col gap-4">
-              <label className="flex flex-col gap-1.5 text-sm font-medium text-slate-700">
-                Nome
-                <input
-                  name="name"
-                  autoComplete="name"
-                  value={name}
-                  onChange={(event) => setName(event.target.value)}
-                  readOnly={!isEditing}
-                  required
-                  maxLength={100}
-                  className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 outline-none transition focus:border-violet-600 focus:ring-2 focus:ring-violet-100 read-only:text-slate-600"
-                />
-              </label>
-
-              {PROFILE_FIELDS.map(({ key, label, icon: Icon }) => (
-                <label
-                  key={key}
-                  className="flex flex-col gap-1.5 text-sm font-medium text-slate-700"
-                >
-                  {label}
-                  <span className="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 text-slate-600">
-                    <Icon size={16} aria-hidden="true" />
-                    <input
-                      value={profile[key] || "—"}
-                      readOnly
-                      aria-label={label}
-                      className="min-w-0 flex-1 bg-transparent outline-none"
-                    />
-                  </span>
-                </label>
-              ))}
-
-              {isEditing && (
-                <div className="mt-1 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
-                  <button
-                    type="button"
-                    onClick={handleCancelEdit}
-                    disabled={isSaving}
-                    className="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-60"
-                  >
-                    <X size={16} aria-hidden="true" />
-                    Cancelar
-                  </button>
-                  <LaminatedButton
-                    type="submit"
-                    disabled={isSaving || !name.trim()}
-                    className="inline-flex items-center justify-center gap-2"
-                  >
-                    <Save size={16} aria-hidden="true" />
-                    {isSaving ? "Salvando..." : "Salvar alterações"}
-                  </LaminatedButton>
+          <section className="relative pb-3">
+            <div className="relative h-full overflow-hidden rounded-t-[2rem] rounded-br-2xl bg-linear-to-r from-violet-900 via-violet-700 to-fuchsia-500">
+              <div className="absolute -right-8 -top-14 size-48 rounded-full border-24 border-white/10" />
+              <div className="flex items-center gap-4 rounded-2xl p-5 text-white">
+                <div className="flex size-16 shrink-0 items-center justify-center rounded-full bg-yellow-400 text-xl font-bold text-violet-950">
+                  {initials || <UserRound aria-hidden="true" />}
                 </div>
-              )}
-            </form>
+                <div className="min-w-0 flex-1">
+                  <h2 className="truncate text-xl font-bold">{profile.name}</h2>
+                  <p className="mt-1 text-sm text-violet-100">
+                    {ROLE_LABELS[profile.role]}
+                  </p>
+                </div>
+                <div className="flex items-center gap-1 rounded-full bg-white/10 px-3 py-1 text-xs font-medium">
+                  <BadgeCheck size={16} aria-hidden="true" />
+                  {profile.status === "active" ? "Ativa" : profile.status}
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3 p-5">
+                <span className="rounded-2xl bg-white p-4 shadow-sm">
+                  <p className="text-xs font-medium text-slate-500">
+                    Saldo de pontos
+                  </p>
+                  <p className="mt-1 text-2xl font-bold text-violet-900">
+                    {profile.points.toLocaleString("pt-BR")}
+                  </p>
+                </span>
+                <span className="rounded-2xl bg-white p-4 shadow-sm">
+                  <p className="text-xs font-medium text-slate-500">
+                    Nível atual
+                  </p>
+                  <p className="mt-1 text-2xl font-bold capitalize text-violet-900">
+                    {profile.level}
+                  </p>
+                </span>
+              </div>
+              <div className="absolute left-1/2 top-7 size-2 rounded-full bg-fuchsia-200 shadow-[0_0_16px_5px_rgba(255,255,255,0.6)]" />
+              <div className="absolute right-24 top-12 size-2 rounded-full bg-white/80 shadow-[0_0_14px_4px_rgba(255,255,255,0.5)]" />
+            </div>
           </section>
+          <section
+            aria-label="Opções do perfil"
+            className="flex flex-col gap-3 px-1"
+          >
+            {PROFILE_MENU.map((item) => {
+              const Icon = item.icon;
+              return (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => {
+                    if (item.id === "data") {
+                      // setName(profile.name);
+                    }
 
+                    if (item.id !== "security" && item.id !== "data") {
+                      toast.error(
+                        "Esta funcionalidade ainda não está disponível.",
+                        { id: "not-available" },
+                      );
+                      return;
+                    }
+
+                    setActiveModal(item.id);
+                  }}
+                  className="flex min-h-19 items-center gap-4 rounded-3xl border border-violet-100 bg-white px-5 text-left text-violet-800 shadow-[0_5px_14px_rgba(91,33,182,0.10)] transition hover:-translate-y-0.5 hover:bg-violet-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-600"
+                >
+                  <Icon size={29} className="shrink-0 text-violet-600" />
+                  <span className="flex-1 text-lg font-semibold sm:text-xl">
+                    {item.label}
+                  </span>
+                  <ChevronRight size={25} className="text-violet-300" />
+                </button>
+              );
+            })}
+          </section>
           <section className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-start gap-3">
               <ShieldCheck
@@ -297,6 +208,15 @@ export default function Profile() {
           </section>
         </>
       )}
+      <ProfileModal
+        activeModal={activeModal}
+        profile={profile}
+        user={user}
+        isSaving={isSaving}
+        setProfile={setProfile}
+        setIsSaving={setIsSaving}
+        setActiveModal={setActiveModal}
+      />
     </main>
   );
 }
