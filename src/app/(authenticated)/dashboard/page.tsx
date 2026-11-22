@@ -56,7 +56,7 @@ export default function Dashboard() {
   }, [user]);
 
   const loadTransactions = useCallback(async () => {
-    if (!profile?.id) return;
+    if (!profile?.id || loading) return;
 
     try {
       setLoading(true);
@@ -67,18 +67,55 @@ export default function Dashboard() {
         cursor: nextCursor ?? undefined,
       });
 
-      setTransactions((prev) => [...prev, ...result.transactions]);
+      setTransactions((previous) => {
+        const transactionsById = new Map(
+          previous.map((transaction) => [transaction.id, transaction]),
+        );
+
+        result.transactions.forEach((transaction) => {
+          transactionsById.set(transaction.id, transaction);
+        });
+
+        return [...transactionsById.values()];
+      });
       setNextCursor(result.cursor);
-      setHasMore(!!result.cursor);
+      setHasMore(Boolean(result.cursor));
     } finally {
       setLoading(false);
     }
-  }, [nextCursor, profile]);
+  }, [loading, nextCursor, profile?.id]);
 
   useEffect(() => {
-    if (!profile?.id) return;
-    loadTransactions();
-  }, [loadTransactions, profile?.id]);
+    const profileId = profile?.id;
+    if (!profileId) return;
+
+    let cancelled = false;
+
+    async function loadInitialTransactions() {
+      try {
+        setLoading(true);
+
+        const result = await getTransactionsController({
+          filters: { userId: profileId },
+          limit: 5,
+        });
+
+        if (cancelled) return;
+
+        setTransactions(result.transactions);
+        setNextCursor(result.cursor);
+        setHasMore(Boolean(result.cursor));
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+
+    loadInitialTransactions();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [profile?.id]);
 
   const calculateProgress = (userPoints: number) => {
     const currentIndex = LEVELS.findLastIndex(
