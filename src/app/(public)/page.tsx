@@ -118,7 +118,7 @@ export default function Home() {
                   <span className="text-base text-violet-900 font-ubuntu font-bold md:text-center">
                     {el.title}
                   </span>
-                  <span className="text-xs text-violet-700 font-lato font-normal md:text-center">
+                  <span className="text-xs text-violet-700 font-ubuntu font-normal md:text-center">
                     {el.description}
                   </span>
                 </div>

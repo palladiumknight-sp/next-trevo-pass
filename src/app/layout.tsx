@@ -1,27 +1,22 @@
 import "./globals.css";
 
-import { Inter, Lato, Ubuntu } from "next/font/google";
+import { Nunito, Ubuntu } from "next/font/google";
 
 import { AuthProvider } from "@/contexts/auth-context";
 import type { Metadata } from "next";
 import { Toaster } from "sonner";
 
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-  display: "swap",
-});
-
-const lato = Lato({
-  variable: "--font-lato",
-  subsets: ["latin"],
-  weight: ["300", "400", "700", "900"],
-});
-
 const ubuntu = Ubuntu({
   variable: "--font-ubuntu",
   subsets: ["latin"],
   weight: ["300", "400", "500", "700"],
+});
+
+const nunito = Nunito({
+  variable: "--font-nunito",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
 });
 
 export function generateViewport() {
@@ -99,7 +94,7 @@ export default function RootLayout({
   return (
     <html lang="pt-BR" className="scroll-smooth">
       <body
-        className={`${inter.variable} ${lato.variable} ${ubuntu.variable} bg-slate-100 antialiased`}
+        className={`${ubuntu.variable} ${nunito.variable} bg-slate-100 antialiased`}
       >
         <AuthProvider>
           <Toaster position="bottom-right" />
