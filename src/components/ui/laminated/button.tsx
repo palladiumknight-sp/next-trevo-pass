@@ -40,7 +40,9 @@ export function LaminatedButton({
         "
       />
 
-      <span className="relative z-10 font-ubuntu">{children}</span>
+      <span className="relative z-10 font-ubuntu inline-flex items-center justify-center gap-2">
+        {children}
+      </span>
     </button>
   );
 }
