@@ -71,7 +71,6 @@ export function ResetPasswordForm({
         <LaminatedButton
           type="submit"
           disabled={isSendingResetEmail || !user?.email}
-          className="inline-flex items-center justify-center gap-2"
         >
           <Send size={17} aria-hidden="true" />
           {isSendingResetEmail

@@ -120,13 +120,8 @@ export function EditProfileForm({
           Cancelar
         </button>
 
-        <LaminatedButton
-          type="submit"
-          disabled={isSaving || !name.trim()}
-          className="inline-flex items-center justify-center gap-2"
-        >
+        <LaminatedButton type="submit" disabled={isSaving || !name.trim()}>
           <Save size={17} aria-hidden="true" />
-
           {isSaving ? "Salvando..." : "Salvar alterações"}
         </LaminatedButton>
       </div>

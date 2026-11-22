@@ -147,7 +147,6 @@ export function ForgotPasswordModal({
               <LaminatedButton
                 type="submit"
                 disabled={isSending || !email.trim()}
-                className="inline-flex items-center justify-center gap-2"
               >
                 <Send size={17} aria-hidden="true" />
                 {isSending ? "Enviando..." : "Enviar link"}
