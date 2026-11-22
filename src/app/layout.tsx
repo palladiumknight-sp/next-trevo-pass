@@ -94,7 +94,7 @@ export default function RootLayout({
   return (
     <html lang="pt-BR" className="scroll-smooth">
       <body
-        className={`${ubuntu.variable} ${nunito.variable} bg-slate-100 antialiased`}
+        className={`${ubuntu.className} ${ubuntu.variable} ${nunito.variable} bg-slate-100 antialiased`}
       >
         <AuthProvider>
           <Toaster position="bottom-right" />
