@@ -29,6 +29,8 @@ export default function Points() {
   const [isLoadingTransactions, setIsLoadingTransactions] = useState(false);
   const [hasMore, setHasMore] = useState(true);
 
+  console.log("TR", transactions);
+
   useEffect(() => {
     let cancelled = false;
 
@@ -143,7 +145,6 @@ export default function Points() {
             {points.toLocaleString("pt-BR")}
             <span className="ml-2 text-base text-white">pontos</span>
           </p>
-
           <div className="mt-5">
             <div className="mb-2 flex items-center justify-between text-sm">
               <span>Nível {currentLevel.level}</span>
@@ -158,7 +159,6 @@ export default function Points() {
           </div>
         </section>
       )}
-
       <section className="flex flex-col gap-3 rounded-xl bg-zinc-200/50 p-3">
         <div>
           <h1 className="text-lg font-bold text-violet-950">Meus pontos</h1>
@@ -166,7 +166,6 @@ export default function Points() {
             Histórico de ganhos e resgates
           </p>
         </div>
-
         {isLoading || isLoadingTransactions ? (
           <div className="flex flex-col gap-2">
             <Skeleton className="h-16 w-full rounded-xl" />
@@ -203,7 +202,6 @@ export default function Points() {
                       <Gift size={20} className="text-violet-100" />
                     )}
                   </div>
-
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-bold text-slate-800">
                       {SOURCE_LABELS[transaction.source] ?? transaction.source}
@@ -214,7 +212,6 @@ export default function Points() {
                       })}
                     </p>
                   </div>
-
                   <p
                     className={`font-bold ${
                       isEarn ? "text-yellow-700" : "text-violet-700"
@@ -226,7 +223,6 @@ export default function Points() {
                 </article>
               );
             })}
-
             {hasMore && (
               <LaminatedButton
                 type="button"
