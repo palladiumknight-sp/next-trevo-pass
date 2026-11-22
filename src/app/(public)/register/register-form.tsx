@@ -199,12 +199,6 @@ export const RegisterForm = () => {
             </span>
           )}
         </div>
-        <Link
-          href="/"
-          className="text-violet-900 text-right text-xs font-normal font-ubuntu"
-        >
-          Esqueceu sua senha?
-        </Link>
         <LaminatedButton type="submit" disabled={isSubmitting}>
           {isSubmitting ? "Processando..." : "Criar conta"}
         </LaminatedButton>

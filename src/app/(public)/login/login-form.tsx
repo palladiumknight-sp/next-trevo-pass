@@ -2,19 +2,21 @@
 
 import { Eye, EyeClosed, Lock, Mail } from "lucide-react";
 import { LoginSchema, loginSchema } from "./schema";
+import { useForm, useWatch } from "react-hook-form";
 
+import { ForgotPasswordModal } from "./forgot-password-modal";
 import { LaminatedButton } from "@/components/ui/laminated";
-import Link from "next/link";
 import { handlerError } from "@/utils/handler-error";
-import { loginUser } from "@/features/auth/repositories/auth.repository";
 import { toast } from "sonner";
-import { useForm } from "react-hook-form";
+import { useAuth } from "@/contexts/auth-context";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 export const LoginForm = () => {
   const [isVisible, setIsVisible] = useState(false);
+  const [isForgotPasswordOpen, setIsForgotPasswordOpen] = useState(false);
+  const { signIn } = useAuth();
 
   const handlePasswordVisible = () => {
     setIsVisible(!isVisible);
@@ -25,12 +27,14 @@ export const LoginForm = () => {
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors, isSubmitting },
   } = useForm<LoginSchema>({ resolver: zodResolver(loginSchema) });
+  const email = useWatch({ control, name: "email" }) ?? "";
 
   const onSubmit = async (data: LoginSchema) => {
     try {
-      await loginUser(data.email, data.password);
+      await signIn(data.email, data.password);
       toast.success("Bem-vindo!", { id: "welcome" });
       router.replace("/dashboard");
     } catch (error) {
@@ -41,7 +45,10 @@ export const LoginForm = () => {
 
   return (
     <>
-      <form className="flex flex-col gap-2 w-full max-w-75">
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="flex flex-col gap-2 w-full max-w-75"
+      >
         <div>
           <div className="flex flex-row items-center gap-1 px-2 py-1 border border-slate-200 rounded-md focus-within:ring-2 focus-within:ring-violet-900">
             <label htmlFor="email" className="sr-only">
@@ -95,19 +102,23 @@ export const LoginForm = () => {
             </span>
           )}
         </div>
-        <Link
-          href="/"
-          className="text-violet-900 text-right text-xs font-normal font-ubuntu"
+        <button
+          type="button"
+          onClick={() => setIsForgotPasswordOpen(true)}
+          className="self-end text-right text-xs font-normal font-ubuntu text-violet-900 underline underline-offset-2 hover:text-violet-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-600 hover:cursor-pointer"
         >
           Esqueceu sua senha?
-        </Link>
-        <LaminatedButton
-          onClick={handleSubmit(onSubmit)}
-          disabled={isSubmitting}
-        >
+        </button>
+        <LaminatedButton type="submit" disabled={isSubmitting}>
           {isSubmitting ? "Entrando" : "Entrar"}
         </LaminatedButton>
       </form>
+      {isForgotPasswordOpen && (
+        <ForgotPasswordModal
+          initialEmail={email}
+          onClose={() => setIsForgotPasswordOpen(false)}
+        />
+      )}
     </>
   );
 };
