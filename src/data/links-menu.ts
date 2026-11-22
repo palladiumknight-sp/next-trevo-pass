@@ -20,7 +20,7 @@ export const LINKS_MENU = [
     href: "/rewards",
     image: PHOTO_URL + "recompensas.png",
     alt: "rewards",
-    text: "Resgates",
+    text: "Recompensas",
   },
   {
     id: 4,
