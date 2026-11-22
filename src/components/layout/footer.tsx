@@ -18,13 +18,13 @@ export const Footer = () => {
           />
         </Link>
         <span className="text-xs text-violet-600 font-medium">
-          <a href="" className="underline">
-            Termos de uso
-          </a>
+          <Link href="/terms-of-service" className="underline">
+            Termos de Serviço
+          </Link>
           &nbsp;|&nbsp;
-          <a href="" className="underline">
-            Privacidade
-          </a>
+          <Link href="/privacy-policy" className="underline">
+            Política de Privacidade
+          </Link>
         </span>
         <div className="flex flex-row gap-3 py-2">
           <a href="https://www.facebook.com/trevoacaioficial">
