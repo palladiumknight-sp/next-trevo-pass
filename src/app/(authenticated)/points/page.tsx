@@ -8,10 +8,9 @@ import { useCallback, useEffect, useState } from "react";
 import { DocumentSnapshot } from "firebase/firestore";
 import { LEVELS } from "@/data";
 import { LaminatedButton } from "@/components/ui/laminated";
-import { format } from "date-fns";
+import { calculateElapsedTime } from "@/utils/calculate-elapsed-time";
 import { getTransactionsController } from "@/features/transactions/controllers/transaction.controller";
 import { getUserByIdController } from "@/features/users/controllers/user.controller";
-import { ptBR } from "date-fns/locale";
 import { useAuth } from "@/contexts/auth-context";
 
 const SOURCE_LABELS = {
@@ -28,8 +27,6 @@ export default function Points() {
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingTransactions, setIsLoadingTransactions] = useState(false);
   const [hasMore, setHasMore] = useState(true);
-
-  console.log("TR", transactions);
 
   useEffect(() => {
     let cancelled = false;
@@ -187,7 +184,7 @@ export default function Points() {
               return (
                 <article
                   key={transaction.id}
-                  className="flex items-center gap-3 rounded-xl bg-slate-100 p-3"
+                  className="bg-slate-100 flex flex-row justify-between items-center gap-3 rounded-xl p-3"
                 >
                   <div
                     className={`rounded-xl p-2 ${
@@ -202,24 +199,21 @@ export default function Points() {
                       <Gift size={20} className="text-violet-100" />
                     )}
                   </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-bold text-slate-800">
-                      {SOURCE_LABELS[transaction.source] ?? transaction.source}
-                    </p>
-                    <p className="text-xs text-slate-500">
-                      {format(date, "dd 'de' MMMM 'às' HH:mm", {
-                        locale: ptBR,
-                      })}
-                    </p>
+                  <div className="flex flex-row justify-between items-center flex-1">
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-bold text-slate-800">
+                        {transaction.establishmentId}
+                      </p>
+                      <p className="text-slate-500 text-xs">
+                        {SOURCE_LABELS[transaction.source] ??
+                          transaction.source}{" "}
+                        {calculateElapsedTime(date)}
+                      </p>
+                    </div>
+                    <span className="text-yellow-600 text-md font-bold">
+                      {`${isEarn ? "+" : "-"}${Math.trunc(transaction.amount)} pontos`}
+                    </span>
                   </div>
-                  <p
-                    className={`font-bold ${
-                      isEarn ? "text-yellow-700" : "text-violet-700"
-                    }`}
-                  >
-                    {isEarn ? "+" : "-"}
-                    {Math.trunc(transaction.amount)}
-                  </p>
                 </article>
               );
             })}

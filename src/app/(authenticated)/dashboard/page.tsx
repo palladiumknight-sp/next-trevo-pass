@@ -15,17 +15,20 @@ import {
   TypingAnimation,
 } from "@/components/ui";
 import { TransactionRead, UserRead } from "@/@types";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
-import { DocumentSnapshot } from "firebase/firestore";
 import Image from "next/image";
-import { LaminatedButton } from "@/components/ui/laminated";
 import Link from "next/link";
-import { formatDistanceToNow } from "date-fns";
+import { calculateElapsedTime } from "@/utils/calculate-elapsed-time";
 import { getTransactionsController } from "@/features/transactions/controllers/transaction.controller";
 import { getUserByIdController } from "@/features/users/controllers/user.controller";
-import { ptBR } from "date-fns/locale";
 import { useAuth } from "@/contexts/auth-context";
+
+const SOURCE_LABELS = {
+  purchase: "Compra",
+  reward: "Resgate",
+  campaign: "Campanha",
+} as const;
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -33,10 +36,6 @@ export default function Dashboard() {
 
   const [transactions, setTransactions] = useState<TransactionRead[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [nextCursor, setNextCursor] = useState<DocumentSnapshot | null>(null);
-
-  const [loading, setLoading] = useState(false);
-  const [hasMore, setHasMore] = useState(true);
 
   useEffect(() => {
     async function loadUser() {
@@ -55,36 +54,6 @@ export default function Dashboard() {
     loadUser();
   }, [user]);
 
-  const loadTransactions = useCallback(async () => {
-    if (!profile?.id || loading) return;
-
-    try {
-      setLoading(true);
-
-      const result = await getTransactionsController({
-        filters: { userId: profile.id },
-        limit: 5,
-        cursor: nextCursor ?? undefined,
-      });
-
-      setTransactions((previous) => {
-        const transactionsById = new Map(
-          previous.map((transaction) => [transaction.id, transaction]),
-        );
-
-        result.transactions.forEach((transaction) => {
-          transactionsById.set(transaction.id, transaction);
-        });
-
-        return [...transactionsById.values()];
-      });
-      setNextCursor(result.cursor);
-      setHasMore(Boolean(result.cursor));
-    } finally {
-      setLoading(false);
-    }
-  }, [loading, nextCursor, profile?.id]);
-
   useEffect(() => {
     const profileId = profile?.id;
     if (!profileId) return;
@@ -93,7 +62,7 @@ export default function Dashboard() {
 
     async function loadInitialTransactions() {
       try {
-        setLoading(true);
+        setIsLoading(true);
 
         const result = await getTransactionsController({
           filters: { userId: profileId },
@@ -103,10 +72,8 @@ export default function Dashboard() {
         if (cancelled) return;
 
         setTransactions(result.transactions);
-        setNextCursor(result.cursor);
-        setHasMore(Boolean(result.cursor));
       } finally {
-        if (!cancelled) setLoading(false);
+        if (!cancelled) setIsLoading(false);
       }
     }
 
@@ -145,15 +112,6 @@ export default function Dashboard() {
       earnedPoints,
       pointsToNextLevel,
     };
-  };
-
-  const calculateElapsedTime = (transaction: TransactionRead) => {
-    const createdAt = transaction.createdAt.toDate();
-
-    return formatDistanceToNow(createdAt, {
-      addSuffix: true,
-      locale: ptBR,
-    });
   };
 
   const progress = calculateProgress(profile?.points || 0);
@@ -219,13 +177,13 @@ export default function Dashboard() {
           )}
         </ul>
       )}
-      <article className="bg-zinc-200/50 flex flex-col gap-4 w-full rounded-xl p-2">
+      <article className="bg-violet-100 flex flex-col gap-4 w-full rounded-xl p-4">
         <section className="flex flex-col gap-2">
           <div className="flex flex-row justify-between">
             <h3 className="text-violet-950/80 text-base font-ubuntu font-medium">
               Ultimas atividades
             </h3>
-            <Link href="/history" className="">
+            <Link href="/points" className="">
               <ChevronRight
                 size={16}
                 className="text-slate-500"
@@ -233,34 +191,49 @@ export default function Dashboard() {
               />
             </Link>
           </div>
-          {transactions.map((tr) => (
-            <div
-              key={tr.id}
-              className="bg-slate-100 flex flex-row justify-between items-center gap-3 rounded-xl p-2"
-            >
-              {tr.type === "earn" ? (
-                <div className="bg-linear-to-tr from-yellow-600 to-yellow-500 rounded-xl p-2">
-                  <Clover size={20} className="text-yellow-200" />
-                </div>
-              ) : (
-                <div className="bg-linear-to-tr from-violet-600 to-violet-500 rounded-xl p-2">
-                  <Gift size={20} className="text-violet-200" />
-                </div>
-              )}
-              <div className="flex flex-row justify-between items-center flex-1">
-                <span className="text-slate-800 text-sm font-ubuntu font-medium">
-                  {`${tr.type === "earn" ? "+" : "-"} ${Math.trunc(tr.amount)} pontos`}
-                </span>
-                <span className="text-slate-500 text-xs font-ubuntu">
-                  {calculateElapsedTime(tr)}
-                </span>
-              </div>
-            </div>
-          ))}
-          {hasMore && (
-            <LaminatedButton onClick={loadTransactions} disabled={loading}>
-              {loading ? "Carregando..." : "Carregar mais"}
-            </LaminatedButton>
+          {isLoading ? (
+            <Skeleton className="bg-linear-to-tr from-slate-300 to-slate-200 w-full h-16 rounded animate-pulse" />
+          ) : (
+            transactions.map((transaction) => {
+              const isEarn = transaction.type === "earn";
+              const date = transaction.createdAt.toDate();
+
+              return (
+                <article
+                  key={transaction.id}
+                  className="bg-slate-100 flex flex-row justify-between items-center gap-3 rounded-xl p-3"
+                >
+                  <div
+                    className={`rounded-xl p-2 ${
+                      isEarn
+                        ? "bg-linear-to-tr from-yellow-600 to-yellow-500"
+                        : "bg-linear-to-tr from-violet-600 to-violet-500"
+                    }`}
+                  >
+                    {isEarn ? (
+                      <Clover size={20} className="text-yellow-100" />
+                    ) : (
+                      <Gift size={20} className="text-violet-100" />
+                    )}
+                  </div>
+                  <div className="flex flex-row justify-between items-center flex-1">
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-bold text-slate-800">
+                        {transaction.establishmentId}
+                      </p>
+                      <p className="text-slate-500 text-xs">
+                        {SOURCE_LABELS[transaction.source] ??
+                          transaction.source}{" "}
+                        {calculateElapsedTime(date)}
+                      </p>
+                    </div>
+                    <span className="text-yellow-600 text-md font-bold">
+                      {`${isEarn ? "+" : "-"}${Math.trunc(transaction.amount)} pontos`}
+                    </span>
+                  </div>
+                </article>
+              );
+            })
           )}
         </section>
         <section>
